@@ -8,6 +8,9 @@ User = settings.AUTH_USER_MODEL
 
 
 def register_view(request):
+  if request.user.is_authenticated:
+    return redirect('core:index')
+  
   if request.method == "POST":
     form = UserRegisterForm(request.POST or None)
     if form.is_valid():
@@ -21,33 +24,32 @@ def register_view(request):
     form = UserRegisterForm()
     
   context = {
-    'form': form
+    'form': form,
+    'head_title': 'Sellara | Sign Up'
   }
   return render(request, 'userauths/sign-up.html', context)
 
 def login_view(request):
-  if request.user.is_authenticated:
-    return redirect('core:index')
+    if request.user.is_authenticated:
+        return redirect('core:index')
 
-  if request.method == "POST":
-    email = request.POST.get('email')
-    password = request.POST.get('password')
-    
-    try:
-      user = User.objects.get(email=email)
-    except:
-      messages.warning(request, f'User with email {email} does not exist.')
-      
-    user = authenticate(request, email=email, password=password)
-    
-    if user is not None:
-      login(request, user)
-      messages.success(request, f'You are logged in as {user.username}')
-      return redirect('core:index')
-    else:
-      messages.warning(request, 'User does not exist')
-      
-  return render(request, 'userauths/sign-in.html')
+    if request.method == "POST":
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        user = authenticate(request, email=email, password=password)  # pastikan backend mendukung email login
+
+        if user is not None:
+            login(request, user)
+            return redirect('core:index')
+        else:
+            messages.warning(request, 'Email or password is incorrect')
+
+    context = {
+        "head_title": "Sellara | Sign In"
+    }
+
+    return render(request, 'userauths/sign-in.html', context)
 
 def logout_view(request):
   logout(request)

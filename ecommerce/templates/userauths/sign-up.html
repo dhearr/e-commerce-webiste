@@ -1,6 +1,7 @@
 {% extends "partials/base.html" %}
 <!-- prettier-ignore -->
 {% load static %} 
+{% block head_title %}{{ head_title }}{% endblock head_title %}
 {% block content %}
 <main class="main">
   <!-- Page Title -->
@@ -109,7 +110,10 @@
                   </div>
 
                   <div class="login-link text-center">
-                    <p>Already have an account? <a href="#">Sign in</a></p>
+                    <p>
+                      Already have an account?
+                      <a href="{% url 'userauths:sign-in' %}">Sign in</a>
+                    </p>
                   </div>
                 </form>
               </div>

@@ -2,4 +2,7 @@ from django.shortcuts import render
 
 # Create your views here.
 def index(request):
-  return render(request, 'core/index.html')
+  context = {
+    "head_title": "Sellara | E-Commerce Website"
+  }
+  return render(request, 'core/index.html', context)
