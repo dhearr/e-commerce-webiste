@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -123,6 +124,8 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
+# Media files
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / "media"
 
@@ -130,3 +133,15 @@ MEDIA_ROOT = BASE_DIR / "media"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# jazzmin
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Sellara Dashboard",
+    "site_header": "Sellara",
+    "site_brand": "Sellara",
+    "site_logo": "assets/img/sellara.png",
+    "show_ui_builder": True,
+    "copyright": "Sellara",
+    "custom_css": "assets/css/custom.css",
+}
