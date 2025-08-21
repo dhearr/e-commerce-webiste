@@ -219,14 +219,26 @@
                       <span>Settings</span>
                     </a>
                   </div>
+
+                  {% if request.user.is_authenticated %}
                   <div class="dropdown-footer">
-                    <a href="register.html" class="btn btn-primary w-100 mb-2"
-                      >Sign In</a
+                    <a
+                      href="{% url 'userauths:sign-out' %}"
+                      class="btn btn-primary w-100 mb-2"
                     >
-                    <a href="login.html" class="btn btn-outline-primary w-100"
-                      >Register</a
-                    >
+                      Sign Out
+                    </a>
                   </div>
+                  {% else %}
+                  <div class="dropdown-footer">
+                    <a href="register.html" class="btn btn-primary w-100 mb-2">
+                      Sign In
+                    </a>
+                    <a href="login.html" class="btn btn-outline-primary w-100">
+                      Sign Up
+                    </a>
+                  </div>
+                  {% endif %}
                 </div>
               </div>
 

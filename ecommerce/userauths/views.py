@@ -1,7 +1,7 @@
 from django.shortcuts import redirect, render
 from userauths.forms import UserRegisterForm
 from django.contrib import messages
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 from django.conf import settings
 
 User = settings.AUTH_USER_MODEL
@@ -48,3 +48,7 @@ def login_view(request):
       messages.warning(request, 'User does not exist')
       
   return render(request, 'userauths/sign-in.html')
+
+def logout_view(request):
+  logout(request)
+  return redirect('userauths:sign-in')
