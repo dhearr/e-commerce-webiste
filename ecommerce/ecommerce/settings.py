@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     
     # installed apps 
     'core',
+    'userauths',
 ]
 
 MIDDLEWARE = [
@@ -145,3 +146,7 @@ JAZZMIN_SETTINGS = {
     "copyright": "Sellara",
     "custom_css": "assets/css/custom.css",
 }
+
+# custom user
+
+AUTH_USER_MODEL = "userauths.User"
