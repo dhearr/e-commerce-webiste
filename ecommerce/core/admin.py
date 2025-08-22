@@ -18,6 +18,7 @@ class ProductImagesAdmin(admin.TabularInline):
 
 class ProductAdmin(admin.ModelAdmin):
     inlines = [ProductImagesAdmin]
+    # readonly_fields = ("pid",)
     list_display = [
         "user",
         "title",

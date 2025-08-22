@@ -87,6 +87,7 @@ class Product(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
+    vendor = models.ForeignKey(Vendor, on_delete=models.SET_NULL, null=True)
 
     title = models.CharField(max_length=155, default="Product-1")
     image = models.ImageField(upload_to=user_directory_path, default="product.jpg")
@@ -108,8 +109,8 @@ class Product(models.Model):
 
     status = models.BooleanField(default=True)
     in_stock = models.BooleanField(default=True)
-    featured = models.BooleanField(default=True)
-    digital = models.BooleanField(default=True)
+    featured = models.BooleanField(default=False)
+    digital = models.BooleanField(default=False)
 
     sku = ShortUUIDField(
         unique=True, length=10, max_length=20, prefix="sku", alphabet="1234567890"
