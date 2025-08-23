@@ -1,110 +1,117 @@
 {% extends "partials/base.html" %}
 <!-- prettier-ignore -->
 {% load static %}
-{% block head_title %}{{ head_title }}{% endblock head_title %}
 {% block content %}
-<main class="main">
-  <!-- Page Title -->
-  <div class="page-title light-background">
-    <div class="container d-lg-flex justify-content-between align-items-center">
-      <h1 class="mb-2 mb-lg-0">Login</h1>
-      <nav class="breadcrumbs">
-        <ol>
-          <li><a href="{% url 'core:index' %}">Home</a></li>
-          <li class="current">Login</li>
-        </ol>
-      </nav>
+<main class="main pages">
+  <div class="page-header breadcrumb-wrap">
+    <div class="container">
+      <div class="breadcrumb">
+        <a href="index.html" rel="nofollow"
+          ><i class="fi-rs-home mr-5"></i>Home</a
+        >
+        <span></span> Pages <span></span> My Account
+      </div>
     </div>
   </div>
-  <!-- End Page Title -->
-
-  <!-- Login Section -->
-  <section id="login" class="login section">
-    <div class="container" data-aos="fade-up" data-aos-delay="100">
-      <div class="row justify-content-center">
-        <div class="col-lg-8 col-md-10">
-          <div class="auth-container" data-aos="fade-in" data-aos-delay="200">
-            <!-- Login Form -->
-            <div class="auth-form login-form active">
-              <div class="form-header">
-                <h3>Welcome Back</h3>
-                <p>Sign in to your account</p>
-              </div>
-
-              {% if messages %}
-              <!-- prettier-ignore -->
-              {% for message in messages %}
-              <div class="alert alert-danger">{{ message }}</div>
-              {% endfor %}
-              <!-- prettier-ignore -->
-              {% endif %}
-
-              <form class="auth-form-content" method="POST">
-                {% csrf_token %}
-                <div class="input-group mb-3">
-                  <span class="input-icon">
-                    <i class="bi bi-envelope"></i>
-                  </span>
-                  <input
-                    type="email"
-                    name="email"
-                    class="form-control"
-                    placeholder="Email address"
-                    required=""
-                    autocomplete="email"
-                  />
-                </div>
-
-                <div class="input-group mb-3">
-                  <span class="input-icon">
-                    <i class="bi bi-lock"></i>
-                  </span>
-                  <input
-                    type="password"
-                    name="password"
-                    class="form-control"
-                    placeholder="Password"
-                    required=""
-                    autocomplete="current-password"
-                  />
-                  <span class="password-toggle">
-                    <i class="bi bi-eye"></i>
-                  </span>
-                </div>
-
-                <div class="form-options mb-4">
-                  <div class="remember-me">
-                    <input type="checkbox" id="rememberLogin" />
-                    <label for="rememberLogin">Remember me</label>
+  <div class="page-content pt-150 pb-150">
+    <div class="container">
+      <div class="row">
+        <div class="col-xl-8 col-lg-10 col-md-12 m-auto">
+          <div class="row">
+            <div class="col-lg-6 pr-30 d-none d-lg-block">
+              <img
+                class="border-radius-15"
+                src="{% static 'assets/imgs/page/login-1.png' %}"
+                alt=""
+              />
+            </div>
+            <div class="col-lg-6 col-md-8">
+              <div class="login_wrap widget-taber-content background-white">
+                <div class="padding_eight_all bg-white">
+                  <div class="heading_s1">
+                    <h1 class="mb-5">Login</h1>
+                    <p class="mb-30">
+                      Don't have an account?
+                      <a href="{% url 'userauths:sign-up' %}">Create here</a>
+                    </p>
                   </div>
-                  <a href="#" class="forgot-password">Forgot password?</a>
+                  {% if messages %}
+                  <!-- prettier-ignore -->
+                  {% for message in messages %}
+                  <div class="alert alert-danger">{{ message }}</div>
+                  {% endfor %}
+                  <!-- prettier-ignore -->
+                  {% endif %}
+                  <form method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                      <input
+                        type="email"
+                        required=""
+                        name="email"
+                        placeholder="Email *"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <input
+                        required=""
+                        type="password"
+                        name="password"
+                        placeholder="Password *"
+                      />
+                    </div>
+                    {% comment %}
+                    <div class="login_footer form-group">
+                      <div class="chek-form">
+                        <input
+                          type="text"
+                          required=""
+                          name="email"
+                          placeholder="Security code *"
+                        />
+                      </div>
+                      <span class="security-code">
+                        <b class="text-new">8</b>
+                        <b class="text-hot">6</b>
+                        <b class="text-sale">7</b>
+                        <b class="text-best">5</b>
+                      </span>
+                    </div>
+                    {% endcomment %}
+                    <div class="login_footer form-group mb-50">
+                      <div class="chek-form">
+                        <div class="custome-checkbox">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            name="checkbox"
+                            id="exampleCheckbox1"
+                            value=""
+                          />
+                          <label class="form-check-label" for="exampleCheckbox1"
+                            ><span>Remember me</span></label
+                          >
+                        </div>
+                      </div>
+                      <a class="text-muted" href="#">Forgot password?</a>
+                    </div>
+                    <div class="form-group">
+                      <button
+                        type="submit"
+                        class="btn btn-heading btn-block hover-up"
+                        name="login"
+                      >
+                        Sign in
+                      </button>
+                    </div>
+                  </form>
                 </div>
-
-                <button type="submit" class="auth-btn primary-btn mb-3">
-                  Sign In
-                  <i class="bi bi-arrow-right"></i>
-                </button>
-
-                <div class="divider">
-                  <span>or</span>
-                </div>
-
-                <button type="button" class="auth-btn social-btn">
-                  <i class="bi bi-google"></i>
-                  Continue with Google
-                </button>
-
-                <div class="switch-form">
-                  <span>Don't have an account?</span>
-                  <a href="{% url 'userauths:sign-up' %}">Create account</a>
-                </div>
-              </form>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </section>
-  <!-- /Login Section -->
+  </div>
 </main>
 {% endblock content %}

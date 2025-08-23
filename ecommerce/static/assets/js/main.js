@@ -1,960 +1,732 @@
-/**
-* Template Name: NiceShop
-* Template URL: https://bootstrapmade.com/niceshop-bootstrap-ecommerce-template/
-* Updated: Jul 25 2025 with Bootstrap v5.3.7
-* Author: BootstrapMade.com
-* License: https://bootstrapmade.com/license/
-*/
-
-(function() {
-  "use strict";
-
-  /**
-   * Apply .scrolled class to the body as the page is scrolled down
-   */
-  function toggleScrolled() {
-    const selectBody = document.querySelector('body');
-    const selectHeader = document.querySelector('#header');
-    if (!selectHeader.classList.contains('scroll-up-sticky') && !selectHeader.classList.contains('sticky-top') && !selectHeader.classList.contains('fixed-top')) return;
-    window.scrollY > 100 ? selectBody.classList.add('scrolled') : selectBody.classList.remove('scrolled');
-  }
-
-  document.addEventListener('scroll', toggleScrolled);
-  window.addEventListener('load', toggleScrolled);
-
-  /**
-   * Init swiper sliders
-   */
-  function initSwiper() {
-    document.querySelectorAll(".init-swiper").forEach(function(swiperElement) {
-      let config = JSON.parse(
-        swiperElement.querySelector(".swiper-config").innerHTML.trim()
-      );
-
-      if (swiperElement.classList.contains("swiper-tab")) {
-        initSwiperWithCustomPagination(swiperElement, config);
-      } else {
-        new Swiper(swiperElement, config);
-      }
-    });
-  }
-
-  window.addEventListener("load", initSwiper);
-
-  /**
-   * Mobile nav toggle
-   */
-  const mobileNavToggleBtn = document.querySelector('.mobile-nav-toggle');
-
-  function mobileNavToogle() {
-    document.querySelector('body').classList.toggle('mobile-nav-active');
-    mobileNavToggleBtn.classList.toggle('bi-list');
-    mobileNavToggleBtn.classList.toggle('bi-x');
-  }
-  if (mobileNavToggleBtn) {
-    mobileNavToggleBtn.addEventListener('click', mobileNavToogle);
-  }
-
-  /**
-   * Hide mobile nav on same-page/hash links
-   */
-  document.querySelectorAll('#navmenu a').forEach(navmenu => {
-    navmenu.addEventListener('click', () => {
-      if (document.querySelector('.mobile-nav-active')) {
-        mobileNavToogle();
-      }
-    });
-
-  });
-
-  /**
-   * Toggle mobile nav dropdowns
-   */
-  document.querySelectorAll('.navmenu .toggle-dropdown').forEach(navmenu => {
-    navmenu.addEventListener('click', function(e) {
-      e.preventDefault();
-      this.parentNode.classList.toggle('active');
-      this.parentNode.nextElementSibling.classList.toggle('dropdown-active');
-      e.stopImmediatePropagation();
-    });
-  });
-
-  /**
-   * Preloader
-   */
-  const preloader = document.querySelector('#preloader');
-  if (preloader) {
-    window.addEventListener('load', () => {
-      preloader.remove();
-    });
-  }
-
-  /**
-   * Scroll top button
-   */
-  let scrollTop = document.querySelector('.scroll-top');
-
-  function toggleScrollTop() {
-    if (scrollTop) {
-      window.scrollY > 100 ? scrollTop.classList.add('active') : scrollTop.classList.remove('active');
-    }
-  }
-  scrollTop.addEventListener('click', (e) => {
-    e.preventDefault();
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-  });
-
-  window.addEventListener('load', toggleScrollTop);
-  document.addEventListener('scroll', toggleScrollTop);
-
-  /**
-   * Animation on scroll function and init
-   */
-  function aosInit() {
-    AOS.init({
-      duration: 600,
-      easing: 'ease-in-out',
-      once: true,
-      mirror: false
-    });
-  }
-  window.addEventListener('load', aosInit);
-
-  /**
-   * Countdown timer
-   */
-  function updateCountDown(countDownItem) {
-    const timeleft = new Date(countDownItem.getAttribute('data-count')).getTime() - new Date().getTime();
-
-    const days = Math.floor(timeleft / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((timeleft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((timeleft % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((timeleft % (1000 * 60)) / 1000);
-
-    const daysElement = countDownItem.querySelector('.count-days');
-    const hoursElement = countDownItem.querySelector('.count-hours');
-    const minutesElement = countDownItem.querySelector('.count-minutes');
-    const secondsElement = countDownItem.querySelector('.count-seconds');
-
-    if (daysElement) daysElement.innerHTML = days;
-    if (hoursElement) hoursElement.innerHTML = hours;
-    if (minutesElement) minutesElement.innerHTML = minutes;
-    if (secondsElement) secondsElement.innerHTML = seconds;
-
-  }
-
-  document.querySelectorAll('.countdown').forEach(function(countDownItem) {
-    updateCountDown(countDownItem);
-    setInterval(function() {
-      updateCountDown(countDownItem);
-    }, 1000);
-  });
-
-  /**
-   * Ecommerce Cart Functionality
-   * Handles quantity changes and item removal
-   */
-
-  function ecommerceCartTools() {
-    // Get all quantity buttons and inputs directly
-    const decreaseButtons = document.querySelectorAll('.quantity-btn.decrease');
-    const increaseButtons = document.querySelectorAll('.quantity-btn.increase');
-    const quantityInputs = document.querySelectorAll('.quantity-input');
-    const removeButtons = document.querySelectorAll('.remove-item');
-
-    // Decrease quantity buttons
-    decreaseButtons.forEach(btn => {
-      btn.addEventListener('click', function() {
-        const quantityInput = btn.closest('.quantity-selector').querySelector('.quantity-input');
-        let currentValue = parseInt(quantityInput.value);
-        if (currentValue > 1) {
-          quantityInput.value = currentValue - 1;
-        }
-      });
-    });
-
-    // Increase quantity buttons
-    increaseButtons.forEach(btn => {
-      btn.addEventListener('click', function() {
-        const quantityInput = btn.closest('.quantity-selector').querySelector('.quantity-input');
-        let currentValue = parseInt(quantityInput.value);
-        if (currentValue < parseInt(quantityInput.getAttribute('max'))) {
-          quantityInput.value = currentValue + 1;
-        }
-      });
-    });
-
-    // Manual quantity inputs
-    quantityInputs.forEach(input => {
-      input.addEventListener('change', function() {
-        let currentValue = parseInt(input.value);
-        const min = parseInt(input.getAttribute('min'));
-        const max = parseInt(input.getAttribute('max'));
-
-        // Validate input
-        if (isNaN(currentValue) || currentValue < min) {
-          input.value = min;
-        } else if (currentValue > max) {
-          input.value = max;
-        }
-      });
-    });
-
-    // Remove item buttons
-    removeButtons.forEach(btn => {
-      btn.addEventListener('click', function() {
-        btn.closest('.cart-item').remove();
-      });
-    });
-  }
-
-  ecommerceCartTools();
-
-  /**
-   * Initiate glightbox
-   */
-  const glightbox = GLightbox({
-    selector: '.glightbox'
-  });
-
-  /**
-   * Product Image Zoom and Thumbnail Functionality
-   */
-
-  function productDetailFeatures() {
-    // Initialize Drift for image zoom
-    function initDriftZoom() {
-      // Check if Drift is available
-      if (typeof Drift === 'undefined') {
-        console.error('Drift library is not loaded');
-        return;
-      }
-
-      const driftOptions = {
-        paneContainer: document.querySelector('.image-zoom-container'),
-        inlinePane: window.innerWidth < 768 ? true : false,
-        inlineOffsetY: -85,
-        containInline: true,
-        hoverBoundingBox: false,
-        zoomFactor: 3,
-        handleTouch: false
-      };
-
-      // Initialize Drift on the main product image
-      const mainImage = document.getElementById('main-product-image');
-      if (mainImage) {
-        new Drift(mainImage, driftOptions);
-      }
-    }
-
-    // Thumbnail click functionality
-    function initThumbnailClick() {
-      const thumbnails = document.querySelectorAll('.thumbnail-item');
-      const mainImage = document.getElementById('main-product-image');
-
-      if (!thumbnails.length || !mainImage) return;
-
-      thumbnails.forEach(thumbnail => {
-        thumbnail.addEventListener('click', function() {
-          // Get image path from data attribute
-          const imageSrc = this.getAttribute('data-image');
-
-          // Update main image src and zoom attribute
-          mainImage.src = imageSrc;
-          mainImage.setAttribute('data-zoom', imageSrc);
-
-          // Update active state
-          thumbnails.forEach(item => item.classList.remove('active'));
-          this.classList.add('active');
-
-          // Reinitialize Drift for the new image
-          initDriftZoom();
+(function ($) {
+    ("use strict");
+    // Page loading
+    $(window).on("load", function () {
+        $("#preloader-active").delay(450).fadeOut("slow");
+        $("body").delay(450).css({
+            overflow: "visible"
         });
-      });
-    }
-
-    // Image navigation functionality (prev/next buttons)
-    function initImageNavigation() {
-      const prevButton = document.querySelector('.image-nav-btn.prev-image');
-      const nextButton = document.querySelector('.image-nav-btn.next-image');
-
-      if (!prevButton || !nextButton) return;
-
-      const thumbnails = Array.from(document.querySelectorAll('.thumbnail-item'));
-      if (!thumbnails.length) return;
-
-      // Function to navigate to previous or next image
-      function navigateImage(direction) {
-        // Find the currently active thumbnail
-        const activeIndex = thumbnails.findIndex(thumb => thumb.classList.contains('active'));
-        if (activeIndex === -1) return;
-
-        let newIndex;
-        if (direction === 'prev') {
-          // Go to previous image or loop to the last one
-          newIndex = activeIndex === 0 ? thumbnails.length - 1 : activeIndex - 1;
+        $("#onloadModal").modal("show");
+    });
+    /*-----------------
+        Menu Stick
+    -----------------*/
+    var header = $(".sticky-bar");
+    var win = $(window);
+    win.on("scroll", function () {
+        var scroll = win.scrollTop();
+        if (scroll < 200) {
+            header.removeClass("stick");
+            $(".header-style-2 .categories-dropdown-active-large").removeClass("open");
+            $(".header-style-2 .categories-button-active").removeClass("open");
         } else {
-          // Go to next image or loop to the first one
-          newIndex = activeIndex === thumbnails.length - 1 ? 0 : activeIndex + 1;
+            header.addClass("stick");
         }
+    });
 
-        // Simulate click on the new thumbnail
-        thumbnails[newIndex].click();
-      }
+    /*------ ScrollUp -------- */
+    $.scrollUp({
+        scrollText: '<i class="fi-rs-arrow-small-up"></i>',
+        easingType: "linear",
+        scrollSpeed: 900,
+        animation: "fade"
+    });
 
-      // Add event listeners to navigation buttons
-      prevButton.addEventListener('click', () => navigateImage('prev'));
-      nextButton.addEventListener('click', () => navigateImage('next'));
+    /*------ Wow Active ----*/
+    new WOW().init();
+
+    //sidebar sticky
+    if ($(".sticky-sidebar").length) {
+        $(".sticky-sidebar").theiaStickySidebar();
     }
 
-    // Initialize all features
-    initDriftZoom();
-    initThumbnailClick();
-    initImageNavigation();
-  }
-
-  productDetailFeatures();
-
-  /**
-   * Price range slider implementation for price filtering.
-   */
-  function priceRangeWidget() {
-    // Get all price range widgets on the page
-    const priceRangeWidgets = document.querySelectorAll('.price-range-container');
-
-    priceRangeWidgets.forEach(widget => {
-      const minRange = widget.querySelector('.min-range');
-      const maxRange = widget.querySelector('.max-range');
-      const sliderProgress = widget.querySelector('.slider-progress');
-      const minPriceDisplay = widget.querySelector('.current-range .min-price');
-      const maxPriceDisplay = widget.querySelector('.current-range .max-price');
-      const minPriceInput = widget.querySelector('.min-price-input');
-      const maxPriceInput = widget.querySelector('.max-price-input');
-      const applyButton = widget.querySelector('.filter-actions .btn-primary');
-
-      if (!minRange || !maxRange || !sliderProgress || !minPriceDisplay || !maxPriceDisplay || !minPriceInput || !maxPriceInput) return;
-
-      // Slider configuration
-      const sliderMin = parseInt(minRange.min);
-      const sliderMax = parseInt(minRange.max);
-      const step = parseInt(minRange.step) || 1;
-
-      // Initialize with default values
-      let minValue = parseInt(minRange.value);
-      let maxValue = parseInt(maxRange.value);
-
-      // Set initial values
-      updateSliderProgress();
-      updateDisplays();
-
-      // Min range input event
-      minRange.addEventListener('input', function() {
-        minValue = parseInt(this.value);
-
-        // Ensure min doesn't exceed max
-        if (minValue > maxValue) {
-          minValue = maxValue;
-          this.value = minValue;
-        }
-
-        // Update min price input and display
-        minPriceInput.value = minValue;
-        updateDisplays();
-        updateSliderProgress();
-      });
-
-      // Max range input event
-      maxRange.addEventListener('input', function() {
-        maxValue = parseInt(this.value);
-
-        // Ensure max isn't less than min
-        if (maxValue < minValue) {
-          maxValue = minValue;
-          this.value = maxValue;
-        }
-
-        // Update max price input and display
-        maxPriceInput.value = maxValue;
-        updateDisplays();
-        updateSliderProgress();
-      });
-
-      // Min price input change
-      minPriceInput.addEventListener('change', function() {
-        let value = parseInt(this.value) || sliderMin;
-
-        // Ensure value is within range
-        value = Math.max(sliderMin, Math.min(sliderMax, value));
-
-        // Ensure min doesn't exceed max
-        if (value > maxValue) {
-          value = maxValue;
-        }
-
-        // Update min value and range input
-        minValue = value;
-        this.value = value;
-        minRange.value = value;
-        updateDisplays();
-        updateSliderProgress();
-      });
-
-      // Max price input change
-      maxPriceInput.addEventListener('change', function() {
-        let value = parseInt(this.value) || sliderMax;
-
-        // Ensure value is within range
-        value = Math.max(sliderMin, Math.min(sliderMax, value));
-
-        // Ensure max isn't less than min
-        if (value < minValue) {
-          value = minValue;
-        }
-
-        // Update max value and range input
-        maxValue = value;
-        this.value = value;
-        maxRange.value = value;
-        updateDisplays();
-        updateSliderProgress();
-      });
-
-      // Apply button click
-      if (applyButton) {
-        applyButton.addEventListener('click', function() {
-          // This would typically trigger a form submission or AJAX request
-          console.log(`Applying price filter: $${minValue} - $${maxValue}`);
-
-          // Here you would typically add code to filter products or redirect to a filtered URL
+    // Slider Range JS
+    if ($("#slider-range").length) {
+        $(".noUi-handle").on("click", function () {
+            $(this).width(50);
         });
-      }
-
-      // Helper function to update the slider progress bar
-      function updateSliderProgress() {
-        const range = sliderMax - sliderMin;
-        const minPercent = ((minValue - sliderMin) / range) * 100;
-        const maxPercent = ((maxValue - sliderMin) / range) * 100;
-
-        sliderProgress.style.left = `${minPercent}%`;
-        sliderProgress.style.width = `${maxPercent - minPercent}%`;
-      }
-
-      // Helper function to update price displays
-      function updateDisplays() {
-        minPriceDisplay.textContent = `$${minValue}`;
-        maxPriceDisplay.textContent = `$${maxValue}`;
-      }
-    });
-  }
-  priceRangeWidget();
-
-  /**
-   * Ecommerce Checkout Section
-   * This script handles the functionality of both multi-step and one-page checkout processes
-   */
-
-  function initCheckout() {
-    // Detect checkout type
-    const isMultiStepCheckout = document.querySelector('.checkout-steps') !== null;
-    const isOnePageCheckout = document.querySelector('.checkout-section') !== null;
-
-    // Initialize common functionality
-    initInputMasks();
-    initPromoCode();
-
-    // Initialize checkout type specific functionality
-    if (isMultiStepCheckout) {
-      initMultiStepCheckout();
-    }
-
-    if (isOnePageCheckout) {
-      initOnePageCheckout();
-    }
-
-    // Initialize tooltips (works for both checkout types)
-    initTooltips();
-  }
-
-  initCheckout();
-
-  // Function to initialize multi-step checkout
-  function initMultiStepCheckout() {
-    // Get all checkout elements
-    const checkoutSteps = document.querySelectorAll('.checkout-steps .step');
-    const checkoutForms = document.querySelectorAll('.checkout-form');
-    const nextButtons = document.querySelectorAll('.next-step');
-    const prevButtons = document.querySelectorAll('.prev-step');
-    const editButtons = document.querySelectorAll('.btn-edit');
-    const paymentMethods = document.querySelectorAll('.payment-method-header');
-    const summaryToggle = document.querySelector('.btn-toggle-summary');
-    const orderSummaryContent = document.querySelector('.order-summary-content');
-
-    // Step Navigation
-    nextButtons.forEach(button => {
-      button.addEventListener('click', function() {
-        const nextStep = parseInt(this.getAttribute('data-next'));
-        navigateToStep(nextStep);
-      });
-    });
-
-    prevButtons.forEach(button => {
-      button.addEventListener('click', function() {
-        const prevStep = parseInt(this.getAttribute('data-prev'));
-        navigateToStep(prevStep);
-      });
-    });
-
-    editButtons.forEach(button => {
-      button.addEventListener('click', function() {
-        const editStep = parseInt(this.getAttribute('data-edit'));
-        navigateToStep(editStep);
-      });
-    });
-
-    // Payment Method Selection for multi-step checkout
-    paymentMethods.forEach(header => {
-      header.addEventListener('click', function() {
-        // Get the radio input within this header
-        const radio = this.querySelector('input[type="radio"]');
-        if (radio) {
-          radio.checked = true;
-
-          // Update active state for all payment methods
-          const allPaymentMethods = document.querySelectorAll('.payment-method');
-          allPaymentMethods.forEach(method => {
-            method.classList.remove('active');
-          });
-
-          // Add active class to the parent payment method
-          this.closest('.payment-method').classList.add('active');
-
-          // Show/hide payment method bodies
-          const allPaymentBodies = document.querySelectorAll('.payment-method-body');
-          allPaymentBodies.forEach(body => {
-            body.classList.add('d-none');
-          });
-
-          const selectedBody = this.closest('.payment-method').querySelector('.payment-method-body');
-          if (selectedBody) {
-            selectedBody.classList.remove('d-none');
-          }
-        }
-      });
-    });
-
-    // Order Summary Toggle (Mobile)
-    if (summaryToggle) {
-      summaryToggle.addEventListener('click', function() {
-        this.classList.toggle('collapsed');
-
-        if (orderSummaryContent) {
-          orderSummaryContent.classList.toggle('d-none');
-        }
-
-        // Toggle icon
-        const icon = this.querySelector('i');
-        if (icon) {
-          if (icon.classList.contains('bi-chevron-down')) {
-            icon.classList.remove('bi-chevron-down');
-            icon.classList.add('bi-chevron-up');
-          } else {
-            icon.classList.remove('bi-chevron-up');
-            icon.classList.add('bi-chevron-down');
-          }
-        }
-      });
-    }
-
-    // Form Validation for multi-step checkout
-    const forms = document.querySelectorAll('.checkout-form-element');
-    forms.forEach(form => {
-      form.addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        // Basic validation
-        const requiredFields = form.querySelectorAll('[required]');
-        let isValid = true;
-
-        requiredFields.forEach(field => {
-          if (!field.value.trim()) {
-            isValid = false;
-            field.classList.add('is-invalid');
-          } else {
-            field.classList.remove('is-invalid');
-          }
+        var rangeSlider = document.getElementById("slider-range");
+        var moneyFormat = wNumb({
+            decimals: 0,
+            thousand: ",",
+            prefix: "$"
+        });
+        noUiSlider.create(rangeSlider, {
+            start: [500, 1000],
+            step: 1,
+            range: {
+                min: [0],
+                max: [2000]
+            },
+            format: moneyFormat,
+            connect: true
         });
 
-        // If it's the final form and valid, show success message
-        if (isValid && form.closest('.checkout-form[data-form="4"]')) {
-          // Hide form fields
-          const formFields = form.querySelectorAll('.form-group, .review-sections, .form-check, .d-flex');
-          formFields.forEach(field => {
-            field.style.display = 'none';
-          });
+        // Set visual min and max values and also update value hidden form inputs
+        rangeSlider.noUiSlider.on("update", function (values, handle) {
+            document.getElementById("slider-range-value1").innerHTML = values[0];
+            document.getElementById("slider-range-value2").innerHTML = values[1];
+            document.getElementsByName("min-value").value = moneyFormat.from(values[0]);
+            document.getElementsByName("max-value").value = moneyFormat.from(values[1]);
+        });
+    }
 
-          // Show success message
-          const successMessage = form.querySelector('.success-message');
-          if (successMessage) {
-            successMessage.classList.remove('d-none');
-
-            // Add animation
-            successMessage.style.animation = 'fadeInUp 0.5s ease forwards';
-          }
-
-          // Simulate redirect after 3 seconds
-          setTimeout(() => {
-            // In a real application, this would redirect to an order confirmation page
-            console.log('Redirecting to order confirmation page...');
-          }, 3000);
-        }
-      });
+    /*------ Hero slider 1 ----*/
+    $(".hero-slider-1").slick({
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        fade: true,
+        loop: true,
+        dots: true,
+        arrows: true,
+        prevArrow: '<span class="slider-btn slider-prev"><i class="fi-rs-angle-left"></i></span>',
+        nextArrow: '<span class="slider-btn slider-next"><i class="fi-rs-angle-right"></i></span>',
+        appendArrows: ".hero-slider-1-arrow",
+        autoplay: true
     });
 
-    // Function to navigate between steps
-    function navigateToStep(stepNumber) {
-      // Update steps
-      checkoutSteps.forEach(step => {
-        const stepNum = parseInt(step.getAttribute('data-step'));
+    /*Carausel 8 columns*/
+    $(".carausel-8-columns").each(function (key, item) {
+        var id = $(this).attr("id");
+        var sliderID = "#" + id;
+        var appendArrowsClassName = "#" + id + "-arrows";
 
-        if (stepNum < stepNumber) {
-          step.classList.add('completed');
-          step.classList.remove('active');
-        } else if (stepNum === stepNumber) {
-          step.classList.add('active');
-          step.classList.remove('completed');
-        } else {
-          step.classList.remove('active', 'completed');
-        }
-      });
-
-      // Update step connectors
-      const connectors = document.querySelectorAll('.step-connector');
-      connectors.forEach((connector, index) => {
-        if (index + 1 < stepNumber) {
-          connector.classList.add('completed');
-          connector.classList.remove('active');
-        } else if (index + 1 === stepNumber - 1) {
-          connector.classList.add('active');
-          connector.classList.remove('completed');
-        } else {
-          connector.classList.remove('active', 'completed');
-        }
-      });
-
-      // Show the corresponding form
-      checkoutForms.forEach(form => {
-        const formNum = parseInt(form.getAttribute('data-form'));
-
-        if (formNum === stepNumber) {
-          form.classList.add('active');
-
-          // Scroll to top of form on mobile
-          if (window.innerWidth < 768) {
-            form.scrollIntoView({
-              behavior: 'smooth',
-              block: 'start'
-            });
-          }
-        } else {
-          form.classList.remove('active');
-        }
-      });
-    }
-  }
-
-  // Function to initialize one-page checkout
-  function initOnePageCheckout() {
-    // Payment Method Selection for one-page checkout
-    const paymentOptions = document.querySelectorAll('.payment-option input[type="radio"]');
-
-    paymentOptions.forEach(option => {
-      option.addEventListener('change', function() {
-        // Update active class on payment options
-        document.querySelectorAll('.payment-option').forEach(opt => {
-          opt.classList.remove('active');
-        });
-
-        this.closest('.payment-option').classList.add('active');
-
-        // Show/hide payment details
-        const paymentId = this.id;
-        document.querySelectorAll('.payment-details').forEach(details => {
-          details.classList.add('d-none');
-        });
-
-        document.getElementById(`${paymentId}-details`).classList.remove('d-none');
-      });
-    });
-
-    // Form Validation for one-page checkout
-    const checkoutForm = document.querySelector('.checkout-form');
-
-    if (checkoutForm) {
-      checkoutForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        // Basic validation
-        const requiredFields = checkoutForm.querySelectorAll('[required]');
-        let isValid = true;
-
-        requiredFields.forEach(field => {
-          if (!field.value.trim()) {
-            isValid = false;
-            field.classList.add('is-invalid');
-
-            // Scroll to first invalid field
-            if (isValid === false) {
-              field.scrollIntoView({
-                behavior: 'smooth',
-                block: 'center'
-              });
-              field.focus();
-              isValid = null; // Set to null so we only scroll to the first invalid field
-            }
-          } else {
-            field.classList.remove('is-invalid');
-          }
-        });
-
-        // If form is valid, show success message
-        if (isValid === true) {
-          // Hide form sections except the last one
-          const sections = document.querySelectorAll('.checkout-section');
-          sections.forEach((section, index) => {
-            if (index < sections.length - 1) {
-              section.style.display = 'none';
-            }
-          });
-
-          // Hide terms checkbox and place order button
-          const termsCheck = document.querySelector('.terms-check');
-          const placeOrderContainer = document.querySelector('.place-order-container');
-
-          if (termsCheck) termsCheck.style.display = 'none';
-          if (placeOrderContainer) placeOrderContainer.style.display = 'none';
-
-          // Show success message
-          const successMessage = document.querySelector('.success-message');
-          if (successMessage) {
-            successMessage.classList.remove('d-none');
-            successMessage.style.animation = 'fadeInUp 0.5s ease forwards';
-          }
-
-          // Scroll to success message
-          const orderReview = document.getElementById('order-review');
-          if (orderReview) {
-            orderReview.scrollIntoView({
-              behavior: 'smooth',
-              block: 'start'
-            });
-          }
-
-          // Simulate redirect after 3 seconds
-          setTimeout(() => {
-            // In a real application, this would redirect to an order confirmation page
-            console.log('Redirecting to order confirmation page...');
-          }, 3000);
-        }
-      });
-
-      // Add input event listeners to clear validation styling when user types
-      const formInputs = checkoutForm.querySelectorAll('input, select, textarea');
-      formInputs.forEach(input => {
-        input.addEventListener('input', function() {
-          if (this.value.trim()) {
-            this.classList.remove('is-invalid');
-          }
-        });
-      });
-    }
-  }
-
-  // Function to initialize input masks (common for both checkout types)
-  function initInputMasks() {
-    // Card number input mask (format: XXXX XXXX XXXX XXXX)
-    const cardNumberInput = document.getElementById('card-number');
-    if (cardNumberInput) {
-      cardNumberInput.addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.length > 16) value = value.slice(0, 16);
-
-        // Add spaces after every 4 digits
-        let formattedValue = '';
-        for (let i = 0; i < value.length; i++) {
-          if (i > 0 && i % 4 === 0) {
-            formattedValue += ' ';
-          }
-          formattedValue += value[i];
-        }
-
-        e.target.value = formattedValue;
-      });
-    }
-
-    // Expiry date input mask (format: MM/YY)
-    const expiryInput = document.getElementById('expiry');
-    if (expiryInput) {
-      expiryInput.addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.length > 4) value = value.slice(0, 4);
-
-        // Format as MM/YY
-        if (value.length > 2) {
-          value = value.slice(0, 2) + '/' + value.slice(2);
-        }
-
-        e.target.value = value;
-      });
-    }
-
-    // CVV input mask (3-4 digits)
-    const cvvInput = document.getElementById('cvv');
-    if (cvvInput) {
-      cvvInput.addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.length > 4) value = value.slice(0, 4);
-        e.target.value = value;
-      });
-    }
-
-    // Phone number input mask
-    const phoneInput = document.getElementById('phone');
-    if (phoneInput) {
-      phoneInput.addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.length > 10) value = value.slice(0, 10);
-
-        // Format as (XXX) XXX-XXXX
-        if (value.length > 0) {
-          if (value.length <= 3) {
-            value = '(' + value;
-          } else if (value.length <= 6) {
-            value = '(' + value.slice(0, 3) + ') ' + value.slice(3);
-          } else {
-            value = '(' + value.slice(0, 3) + ') ' + value.slice(3, 6) + '-' + value.slice(6);
-          }
-        }
-
-        e.target.value = value;
-      });
-    }
-
-    // ZIP code input mask (5 digits)
-    const zipInput = document.getElementById('zip');
-    if (zipInput) {
-      zipInput.addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.length > 5) value = value.slice(0, 5);
-        e.target.value = value;
-      });
-    }
-  }
-
-  // Function to handle promo code application (common for both checkout types)
-  function initPromoCode() {
-    const promoInput = document.querySelector('.promo-code input');
-    const promoButton = document.querySelector('.promo-code button');
-
-    if (promoInput && promoButton) {
-      promoButton.addEventListener('click', function() {
-        const promoCode = promoInput.value.trim();
-
-        if (promoCode) {
-          // Simulate promo code validation
-          // In a real application, this would make an API call to validate the code
-
-          // For demo purposes, let's assume "DISCOUNT20" is a valid code
-          if (promoCode.toUpperCase() === 'DISCOUNT20') {
-            // Show success state
-            promoInput.classList.add('is-valid');
-            promoInput.classList.remove('is-invalid');
-            promoButton.textContent = 'Applied';
-            promoButton.disabled = true;
-
-            // Update order total (in a real app, this would recalculate based on the discount)
-            const orderTotal = document.querySelector('.order-total span:last-child');
-            const btnPrice = document.querySelector('.btn-price');
-
-            if (orderTotal) {
-              // Apply a 20% discount
-              const currentTotal = parseFloat(orderTotal.textContent.replace('$', ''));
-              const discountedTotal = (currentTotal * 0.8).toFixed(2);
-              orderTotal.textContent = '$' + discountedTotal;
-
-              // Update button price if it exists
-              if (btnPrice) {
-                btnPrice.textContent = '$' + discountedTotal;
-              }
-
-              // Add discount line
-              const orderTotals = document.querySelector('.order-totals');
-              if (orderTotals) {
-                const discountElement = document.createElement('div');
-                discountElement.className = 'order-discount d-flex justify-content-between';
-                discountElement.innerHTML = `
-                <span>Discount (20%)</span>
-                <span>-$${(currentTotal * 0.2).toFixed(2)}</span>
-              `;
-
-                // Insert before the total
-                const totalElement = document.querySelector('.order-total');
-                if (totalElement) {
-                  orderTotals.insertBefore(discountElement, totalElement);
+        $(sliderID).slick({
+            dots: false,
+            infinite: true,
+            speed: 1000,
+            arrows: true,
+            autoplay: true,
+            slidesToShow: 8,
+            slidesToScroll: 1,
+            loop: true,
+            adaptiveHeight: true,
+            responsive: [
+                {
+                    breakpoint: 1025,
+                    settings: {
+                        slidesToShow: 4,
+                        slidesToScroll: 1
+                    }
+                },
+                {
+                    breakpoint: 768,
+                    settings: {
+                        slidesToShow: 3,
+                        slidesToScroll: 1
+                    }
+                },
+                {
+                    breakpoint: 480,
+                    settings: {
+                        slidesToShow: 2,
+                        slidesToScroll: 1
+                    }
                 }
-              }
-            }
-          } else {
-            // Show error state
-            promoInput.classList.add('is-invalid');
-            promoInput.classList.remove('is-valid');
-
-            // Reset after 3 seconds
-            setTimeout(() => {
-              promoInput.classList.remove('is-invalid');
-            }, 3000);
-          }
-        }
-      });
-    }
-  }
-
-  // Function to initialize Bootstrap tooltips
-  function initTooltips() {
-    // Check if Bootstrap's tooltip function exists
-    if (typeof bootstrap !== 'undefined' && typeof bootstrap.Tooltip !== 'undefined') {
-      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
-    } else {
-      // Fallback for when Bootstrap JS is not loaded
-      const cvvHint = document.querySelector('.cvv-hint');
-      if (cvvHint) {
-        cvvHint.addEventListener('mouseenter', function() {
-          this.setAttribute('data-original-title', this.getAttribute('title'));
-          this.setAttribute('title', '');
+            ],
+            prevArrow: '<span class="slider-btn slider-prev"><i class="fi-rs-arrow-small-left"></i></span>',
+            nextArrow: '<span class="slider-btn slider-next"><i class="fi-rs-arrow-small-right"></i></span>',
+            appendArrows: appendArrowsClassName
         });
-
-        cvvHint.addEventListener('mouseleave', function() {
-          this.setAttribute('title', this.getAttribute('data-original-title'));
-        });
-      }
-    }
-  }
-
-  /**
-   * Initiate Pure Counter
-   */
-  new PureCounter();
-
-  /**
-   * Frequently Asked Questions Toggle
-   */
-  document.querySelectorAll('.faq-item h3, .faq-item .faq-toggle, .faq-item .faq-header').forEach((faqItem) => {
-    faqItem.addEventListener('click', () => {
-      faqItem.parentNode.classList.toggle('faq-active');
     });
-  });
 
-})();
+    /*Carausel 10 columns*/
+    $(".carausel-10-columns").each(function (key, item) {
+        var id = $(this).attr("id");
+        var sliderID = "#" + id;
+        var appendArrowsClassName = "#" + id + "-arrows";
+
+        $(sliderID).slick({
+            dots: false,
+            infinite: true,
+            speed: 1000,
+            arrows: true,
+            autoplay: false,
+            slidesToShow: 10,
+            slidesToScroll: 1,
+            loop: true,
+            adaptiveHeight: true,
+            responsive: [
+                {
+                    breakpoint: 1025,
+                    settings: {
+                        slidesToShow: 4,
+                        slidesToScroll: 1
+                    }
+                },
+                {
+                    breakpoint: 768,
+                    settings: {
+                        slidesToShow: 3,
+                        slidesToScroll: 1
+                    }
+                },
+                {
+                    breakpoint: 480,
+                    settings: {
+                        slidesToShow: 2,
+                        slidesToScroll: 1
+                    }
+                }
+            ],
+            prevArrow: '<span class="slider-btn slider-prev"><i class="fi-rs-arrow-small-left"></i></span>',
+            nextArrow: '<span class="slider-btn slider-next"><i class="fi-rs-arrow-small-right"></i></span>',
+            appendArrows: appendArrowsClassName
+        });
+    });
+
+    /*Carausel 4 columns*/
+    $(".carausel-4-columns").each(function (key, item) {
+        var id = $(this).attr("id");
+        var sliderID = "#" + id;
+        var appendArrowsClassName = "#" + id + "-arrows";
+
+        $(sliderID).slick({
+            dots: false,
+            infinite: true,
+            speed: 1000,
+            arrows: true,
+            autoplay: true,
+            slidesToShow: 4,
+            slidesToScroll: 1,
+            loop: true,
+            adaptiveHeight: true,
+            responsive: [
+                {
+                    breakpoint: 1025,
+                    settings: {
+                        slidesToShow: 3,
+                        slidesToScroll: 3
+                    }
+                },
+                {
+                    breakpoint: 480,
+                    settings: {
+                        slidesToShow: 1,
+                        slidesToScroll: 1
+                    }
+                }
+            ],
+            prevArrow: '<span class="slider-btn slider-prev"><i class="fi-rs-arrow-small-left"></i></span>',
+            nextArrow: '<span class="slider-btn slider-next"><i class="fi-rs-arrow-small-right"></i></span>',
+            appendArrows: appendArrowsClassName
+        });
+    });
+    /*Carausel 4 columns*/
+    $(".carausel-3-columns").each(function (key, item) {
+        var id = $(this).attr("id");
+        var sliderID = "#" + id;
+        var appendArrowsClassName = "#" + id + "-arrows";
+
+        $(sliderID).slick({
+            dots: false,
+            infinite: true,
+            speed: 1000,
+            arrows: true,
+            autoplay: true,
+            slidesToShow: 3,
+            slidesToScroll: 1,
+            loop: true,
+            adaptiveHeight: true,
+            responsive: [
+                {
+                    breakpoint: 1025,
+                    settings: {
+                        slidesToShow: 3,
+                        slidesToScroll: 3
+                    }
+                },
+                {
+                    breakpoint: 480,
+                    settings: {
+                        slidesToShow: 1,
+                        slidesToScroll: 1
+                    }
+                }
+            ],
+            prevArrow: '<span class="slider-btn slider-prev"><i class="fi-rs-arrow-small-left"></i></span>',
+            nextArrow: '<span class="slider-btn slider-next"><i class="fi-rs-arrow-small-right"></i></span>',
+            appendArrows: appendArrowsClassName
+        });
+    });
+
+    /*Fix Bootstrap 5 tab & slick slider*/
+
+    $('button[data-bs-toggle="tab"]').on("shown.bs.tab", function (e) {
+        $(".carausel-4-columns").slick("setPosition");
+    });
+
+    /*------ Timer Countdown ----*/
+
+    $("[data-countdown]").each(function () {
+        var $this = $(this),
+            finalDate = $(this).data("countdown");
+        $this.countdown(finalDate, function (event) {
+            $(this).html(event.strftime("" + '<span class="countdown-section"><span class="countdown-amount hover-up">%D</span><span class="countdown-period"> days </span></span>' + '<span class="countdown-section"><span class="countdown-amount hover-up">%H</span><span class="countdown-period"> hours </span></span>' + '<span class="countdown-section"><span class="countdown-amount hover-up">%M</span><span class="countdown-period"> mins </span></span>' + '<span class="countdown-section"><span class="countdown-amount hover-up">%S</span><span class="countdown-period"> sec </span></span>'));
+        });
+    });
+
+    /*------ Product slider active 1 ----*/
+    $(".product-slider-active-1").slick({
+        slidesToShow: 5,
+        slidesToScroll: 1,
+        autoplay: true,
+        fade: false,
+        loop: true,
+        dots: false,
+        arrows: true,
+        prevArrow: '<span class="pro-icon-1-prev"><i class="fi-rs-angle-small-left"></i></span>',
+        nextArrow: '<span class="pro-icon-1-next"><i class="fi-rs-angle-small-right"></i></span>',
+        responsive: [
+            {
+                breakpoint: 1199,
+                settings: {
+                    slidesToShow: 3
+                }
+            },
+            {
+                breakpoint: 991,
+                settings: {
+                    slidesToShow: 2
+                }
+            },
+            {
+                breakpoint: 767,
+                settings: {
+                    slidesToShow: 2
+                }
+            },
+            {
+                breakpoint: 575,
+                settings: {
+                    slidesToShow: 1
+                }
+            }
+        ]
+    });
+
+    /*------ Testimonial active 1 ----*/
+    $(".testimonial-active-1").slick({
+        slidesToShow: 3,
+        slidesToScroll: 1,
+        fade: false,
+        loop: true,
+        dots: false,
+        arrows: true,
+        prevArrow: '<span class="pro-icon-1-prev"><i class="fi-rs-angle-small-left"></i></span>',
+        nextArrow: '<span class="pro-icon-1-next"><i class="fi-rs-angle-small-right"></i></span>',
+        responsive: [
+            {
+                breakpoint: 1199,
+                settings: {
+                    slidesToShow: 3
+                }
+            },
+            {
+                breakpoint: 991,
+                settings: {
+                    slidesToShow: 2
+                }
+            },
+            {
+                breakpoint: 767,
+                settings: {
+                    slidesToShow: 1
+                }
+            },
+            {
+                breakpoint: 575,
+                settings: {
+                    slidesToShow: 1
+                }
+            }
+        ]
+    });
+
+    /*------ Testimonial active 3 ----*/
+    $(".testimonial-active-3").slick({
+        slidesToShow: 3,
+        slidesToScroll: 1,
+        fade: false,
+        loop: true,
+        dots: true,
+        arrows: false,
+        responsive: [
+            {
+                breakpoint: 1199,
+                settings: {
+                    slidesToShow: 3
+                }
+            },
+            {
+                breakpoint: 991,
+                settings: {
+                    slidesToShow: 2
+                }
+            },
+            {
+                breakpoint: 767,
+                settings: {
+                    slidesToShow: 1
+                }
+            },
+            {
+                breakpoint: 575,
+                settings: {
+                    slidesToShow: 1
+                }
+            }
+        ]
+    });
+
+    /*------ Categories slider 1 ----*/
+    $(".categories-slider-1").slick({
+        slidesToShow: 6,
+        slidesToScroll: 1,
+        fade: false,
+        loop: true,
+        dots: false,
+        arrows: false,
+        responsive: [
+            {
+                breakpoint: 1199,
+                settings: {
+                    slidesToShow: 4
+                }
+            },
+            {
+                breakpoint: 991,
+                settings: {
+                    slidesToShow: 3
+                }
+            },
+            {
+                breakpoint: 767,
+                settings: {
+                    slidesToShow: 2
+                }
+            },
+            {
+                breakpoint: 575,
+                settings: {
+                    slidesToShow: 1
+                }
+            }
+        ]
+    });
+
+    /*----------------------------
+        Category toggle function
+    ------------------------------*/
+    var searchToggle = $(".categories-button-active");
+    searchToggle.on("click", function (e) {
+        e.preventDefault();
+        if ($(this).hasClass("open")) {
+            $(this).removeClass("open");
+            $(this).siblings(".categories-dropdown-active-large").removeClass("open");
+        } else {
+            $(this).addClass("open");
+            $(this).siblings(".categories-dropdown-active-large").addClass("open");
+        }
+    });
+
+    /*-------------------------------
+        Sort by active
+    -----------------------------------*/
+    if ($(".sort-by-product-area").length) {
+        var $body = $("body"),
+            $cartWrap = $(".sort-by-product-area"),
+            $cartContent = $cartWrap.find(".sort-by-dropdown");
+        $cartWrap.on("click", ".sort-by-product-wrap", function (e) {
+            e.preventDefault();
+            var $this = $(this);
+            if (!$this.parent().hasClass("show")) {
+                $this.siblings(".sort-by-dropdown").addClass("show").parent().addClass("show");
+            } else {
+                $this.siblings(".sort-by-dropdown").removeClass("show").parent().removeClass("show");
+            }
+        });
+        /*Close When Click Outside*/
+        $body.on("click", function (e) {
+            var $target = e.target;
+            if (!$($target).is(".sort-by-product-area") && !$($target).parents().is(".sort-by-product-area") && $cartWrap.hasClass("show")) {
+                $cartWrap.removeClass("show");
+                $cartContent.removeClass("show");
+            }
+        });
+    }
+
+    /*-----------------------
+        Shop filter active
+    ------------------------- */
+    $(".shop-filter-toogle").on("click", function (e) {
+        e.preventDefault();
+        $(".shop-product-fillter-header").slideToggle();
+    });
+    var shopFiltericon = $(".shop-filter-toogle");
+    shopFiltericon.on("click", function () {
+        $(".shop-filter-toogle").toggleClass("active");
+    });
+
+    /*-------------------------------------
+        Product details big image slider
+    ---------------------------------------*/
+    $(".pro-dec-big-img-slider").slick({
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        arrows: false,
+        draggable: false,
+        fade: false,
+        asNavFor: ".product-dec-slider-small , .product-dec-slider-small-2"
+    });
+
+    /*---------------------------------------
+        Product details small image slider
+    -----------------------------------------*/
+    $(".product-dec-slider-small").slick({
+        slidesToShow: 4,
+        slidesToScroll: 1,
+        asNavFor: ".pro-dec-big-img-slider",
+        dots: false,
+        focusOnSelect: true,
+        fade: false,
+        arrows: false,
+        responsive: [
+            {
+                breakpoint: 991,
+                settings: {
+                    slidesToShow: 3
+                }
+            },
+            {
+                breakpoint: 767,
+                settings: {
+                    slidesToShow: 4
+                }
+            },
+            {
+                breakpoint: 575,
+                settings: {
+                    slidesToShow: 2
+                }
+            }
+        ]
+    });
+
+    /*-----------------------
+        Magnific Popup
+    ------------------------*/
+    $(".img-popup").magnificPopup({
+        type: "image",
+        gallery: {
+            enabled: true
+        }
+    });
+
+    $('.btn-close').on('click', function(e) {
+        $('.zoomContainer').remove();
+    });
+
+    $('#quickViewModal').on('show.bs.modal', function (e) {
+        $(document).click(function (e) {
+            var modalDialog = $('.modal-dialog');
+            if (!modalDialog.is(e.target) && modalDialog.has(e.target).length === 0) {
+                $('.zoomContainer').remove();
+            }
+        });
+    });
+
+
+
+    /*---------------------
+        Select active
+    --------------------- */
+    $(".select-active").select2();
+
+    /*--- Checkout toggle function ----*/
+    $(".checkout-click1").on("click", function (e) {
+        e.preventDefault();
+        $(".checkout-login-info").slideToggle(900);
+    });
+
+    /*--- Checkout toggle function ----*/
+    $(".checkout-click3").on("click", function (e) {
+        e.preventDefault();
+        $(".checkout-login-info3").slideToggle(1000);
+    });
+
+    /*-------------------------
+        Create an account toggle
+    --------------------------*/
+    $(".checkout-toggle2").on("click", function () {
+        $(".open-toggle2").slideToggle(1000);
+    });
+
+    $(".checkout-toggle").on("click", function () {
+        $(".open-toggle").slideToggle(1000);
+    });
+
+    /*-------------------------------------
+        Checkout paymentMethod function
+    ---------------------------------------*/
+    paymentMethodChanged();
+    function paymentMethodChanged() {
+        var $order_review = $(".payment-method");
+
+        $order_review.on("click", 'input[name="payment_method"]', function () {
+            var selectedClass = "payment-selected";
+            var parent = $(this).parents(".sin-payment").first();
+            parent.addClass(selectedClass).siblings().removeClass(selectedClass);
+        });
+    }
+
+    /*---- CounterUp ----*/
+    $(".count").counterUp({
+        delay: 10,
+        time: 2000
+    });
+
+    // Isotope active
+    $(".grid").imagesLoaded(function () {
+        // init Isotope
+        var $grid = $(".grid").isotope({
+            itemSelector: ".grid-item",
+            percentPosition: true,
+            layoutMode: "masonry",
+            masonry: {
+                // use outer width of grid-sizer for columnWidth
+                columnWidth: ".grid-item"
+            }
+        });
+    });
+
+    /*====== SidebarSearch ======*/
+    function sidebarSearch() {
+        var searchTrigger = $(".search-active"),
+            endTriggersearch = $(".search-close"),
+            container = $(".main-search-active");
+
+        searchTrigger.on("click", function (e) {
+            e.preventDefault();
+            container.addClass("search-visible");
+        });
+
+        endTriggersearch.on("click", function () {
+            container.removeClass("search-visible");
+        });
+    }
+    sidebarSearch();
+
+    /*====== Sidebar menu Active ======*/
+    function mobileHeaderActive() {
+        var navbarTrigger = $(".burger-icon"),
+            endTrigger = $(".mobile-menu-close"),
+            container = $(".mobile-header-active"),
+            wrapper4 = $("body");
+
+        wrapper4.prepend('<div class="body-overlay-1"></div>');
+
+        navbarTrigger.on("click", function (e) {
+            e.preventDefault();
+            container.addClass("sidebar-visible");
+            wrapper4.addClass("mobile-menu-active");
+        });
+
+        endTrigger.on("click", function () {
+            container.removeClass("sidebar-visible");
+            wrapper4.removeClass("mobile-menu-active");
+        });
+
+        $(".body-overlay-1").on("click", function () {
+            container.removeClass("sidebar-visible");
+            wrapper4.removeClass("mobile-menu-active");
+        });
+    }
+    mobileHeaderActive();
+
+    /*---------------------
+        Mobile menu active
+    ------------------------ */
+    var $offCanvasNav = $(".mobile-menu"),
+        $offCanvasNavSubMenu = $offCanvasNav.find(".dropdown");
+
+    /*Add Toggle Button With Off Canvas Sub Menu*/
+    $offCanvasNavSubMenu.parent().prepend('<span class="menu-expand"><i class="fi-rs-angle-small-down"></i></span>');
+
+    /*Close Off Canvas Sub Menu*/
+    $offCanvasNavSubMenu.slideUp();
+
+    /*Category Sub Menu Toggle*/
+    $offCanvasNav.on("click", "li a, li .menu-expand", function (e) {
+        var $this = $(this);
+        if (
+            $this
+                .parent()
+                .attr("class")
+                .match(/\b(menu-item-has-children|has-children|has-sub-menu)\b/) &&
+            ($this.attr("href") === "#" || $this.hasClass("menu-expand"))
+        ) {
+            e.preventDefault();
+            if ($this.siblings("ul:visible").length) {
+                $this.parent("li").removeClass("active");
+                $this.siblings("ul").slideUp();
+            } else {
+                $this.parent("li").addClass("active");
+                $this.closest("li").siblings("li").removeClass("active").find("li").removeClass("active");
+                $this.closest("li").siblings("li").find("ul:visible").slideUp();
+                $this.siblings("ul").slideDown();
+            }
+        }
+    });
+
+    /*--- language currency active ----*/
+    $(".mobile-language-active").on("click", function (e) {
+        e.preventDefault();
+        $(".lang-dropdown-active").slideToggle(900);
+    });
+
+    /*--- categories-button-active-2 ----*/
+    $(".categories-button-active-2").on("click", function (e) {
+        e.preventDefault();
+        $(".categori-dropdown-active-small").slideToggle(900);
+    });
+
+    /*--- Mobile demo active ----*/
+    var demo = $(".tm-demo-options-wrapper");
+    $(".view-demo-btn-active").on("click", function (e) {
+        e.preventDefault();
+        demo.toggleClass("demo-open");
+    });
+
+    /*-----More Menu Open----*/
+    $(".more_slide_open").slideUp();
+    $(".more_categories").on("click", function () {
+        $(this).toggleClass("show");
+        $(".more_slide_open").slideToggle();
+    });
+
+    /*-----Modal----*/
+
+    $(".modal").on("shown.bs.modal", function (e) {
+        $(".product-image-slider").slick("setPosition");
+        $(".slider-nav-thumbnails").slick("setPosition");
+        if ($(window).width() > 768) {
+            $(".product-image-slider .slick-active img").elevateZoom({
+                zoomType: "inner",
+                cursor: "crosshair",
+                zoomWindowFadeIn: 500,
+                zoomWindowFadeOut: 750
+            });
+        }
+    });
+
+    /*--- VSticker ----*/
+    $("#news-flash").vTicker({
+        speed: 500,
+        pause: 3000,
+        animation: "fade",
+        mousePause: false,
+        showItems: 1
+    });
+})(jQuery);
+

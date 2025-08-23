@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from core.models import Product
+from core.models import Product, Category
 
 
 def index(request):
@@ -8,7 +8,6 @@ def index(request):
     ).order_by("-date")
 
     context = {
-        "head_title": "Sellara | E-Commerce Website",
         "products": products,
     }
     return render(request, "core/index.html", context)
