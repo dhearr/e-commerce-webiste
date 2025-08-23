@@ -22,6 +22,8 @@ class ProductAdmin(admin.ModelAdmin):
     list_display = [
         "user",
         "title",
+        "vendor",
+        "category",
         "product_image",
         "price",
         "featured",
