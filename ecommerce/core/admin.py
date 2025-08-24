@@ -21,6 +21,7 @@ class ProductAdmin(admin.ModelAdmin):
     # readonly_fields = ("pid",)
     list_display = [
         "user",
+        "pid",
         "title",
         "vendor",
         "category",

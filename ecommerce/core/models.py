@@ -107,6 +107,10 @@ class Product(models.Model):
     )
 
     specifications = models.TextField(null=True, blank=True)
+    type = models.CharField(max_length=155, default="Type-1")
+    stock_count = models.CharField(max_length=155, default="10")
+    life = models.CharField(max_length=155, default="100 days")
+    mfd = models.DateTimeField(auto_now_add=False, null=True, blank=True)
     # tags = models.ForeignKey(Tags, on_delete=models.SET_NULL, null=True)
 
     product_status = models.CharField(
@@ -141,7 +145,9 @@ class Product(models.Model):
 
 class ProductImages(models.Model):
     images = models.ImageField(upload_to="product-images", default="product.jpg")
-    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    product = models.ForeignKey(
+        Product, on_delete=models.SET_NULL, null=True, related_name="product_images"
+    )
     date = models.DateTimeField(auto_now_add=True)
 
     class Meta:

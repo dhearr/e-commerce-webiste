@@ -6,7 +6,9 @@ app_name = "core"
 urlpatterns = [
     # Home Page
     path("", views.index, name="index"),
-    path("product/", views.product_list_view, name="product-list"),
+    # Product
+    path("products/", views.product_list_view, name="product-list"),
+    path("product/<pid>", views.product_detail_view, name="product-detail"),
     # Category
     path("category/", views.category_list_view, name="category-list"),
     path(

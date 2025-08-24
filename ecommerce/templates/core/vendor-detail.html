@@ -9,7 +9,8 @@
         <a href="{% url 'core:index' %}" rel="nofollow"
           ><i class="fi-rs-home mr-5"></i>Home</a
         >
-        <span></span> Store <span></span> {{ vendor.title }}
+        <span></span> <a href="{% url 'core:vendor-list' %}">Store</a>
+        <span></span> {{ vendor.title }}
       </div>
     </div>
   </div>
@@ -166,7 +167,7 @@
             <div class="product-img-action-wrap">
               <div class="product-img product-img-zoom">
                 <div class="product-img-inner">
-                  <a href="shop-product-right.html">
+                  <a href="{% url 'core:product-detail' product.pid %}">
                     <img
                       class="default-img"
                       src="{{ product.image.url }}"
@@ -211,10 +212,13 @@
             </div>
             <div class="product-content-wrap">
               <div class="product-category">
-                <a href="shop-grid-right.html">{{ product.category }}</a>
+                <a
+                  href="{% url 'core:category-product-list' product.category.cid %}"
+                  >{{ product.category }}</a
+                >
               </div>
               <h2>
-                <a href="shop-product-right.html"
+                <a href="{% url 'core:product-detail' product.pid %}"
                   >{{ product.title|truncatechars:50 }}</a
                 >
               </h2>

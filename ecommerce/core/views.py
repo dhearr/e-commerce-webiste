@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from core.models import Product, Category, Vendor
 from django.db.models import Count
 
@@ -14,6 +14,7 @@ def index(request):
     return render(request, "core/index.html", context)
 
 
+# Product Views
 def product_list_view(request):
     products = Product.objects.filter(product_status="published").order_by("-date")
 
@@ -23,6 +24,18 @@ def product_list_view(request):
     return render(request, "core/product-list.html", context)
 
 
+def product_detail_view(request, pid):
+    product = Product.objects.get(pid=pid)
+    product_images = product.product_images.all()
+
+    context = {
+        "product": product,
+        "product_images": product_images,
+    }
+    return render(request, "core/product-detail.html", context)
+
+
+# Category Views
 def category_list_view(request):
     # categories = Category.objects.all()
     categories = Category.objects.all().annotate(product_count=Count("products"))
@@ -46,6 +59,7 @@ def category_product_list_view(request, cid):
     return render(request, "core/category-product-list.html", context)
 
 
+# Vendor Views
 def vendor_list_view(request):
     vendors = Vendor.objects.all()
 
@@ -57,6 +71,7 @@ def vendor_list_view(request):
 
 def vendor_detail_view(request, vid):
     vendor = Vendor.objects.get(vid=vid)
+    # vendor = get_object_or_404(Vendor, vid=vid)
     products = Product.objects.filter(
         vendor=vendor, product_status="published"
     ).order_by("-date")
