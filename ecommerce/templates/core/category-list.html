@@ -145,7 +145,7 @@
                     <div>
                       <!-- prettier-ignore -->
                       <span class="hit-count">
-                        {{ cat.category.count }} Product{{ cat.category.count|pluralize }}
+                        {{ cat.products.count }} Product{{ cat.products.count|pluralize }}
                       </span>
                     </div>
                   </div>
@@ -199,7 +199,7 @@
                 <li>
                   <a href="{% url 'core:category-product-list' cat.cid %}">
                     <img src="{{ cat.image.url }}" alt="" />{{ cat.title }}</a
-                  ><span class="count">{{ cat.category.count }}</span>
+                  ><span class="count">{{ cat.products.count }}</span>
                 </li>
                 {% endfor %}
               </ul>

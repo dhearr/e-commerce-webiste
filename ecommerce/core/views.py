@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from core.models import Product, Category
+from core.models import Product, Category, Vendor
 from django.db.models import Count
 
 
@@ -25,7 +25,7 @@ def product_list_view(request):
 
 def category_list_view(request):
     # categories = Category.objects.all()
-    categories = Category.objects.all().annotate(product_count=Count("category"))
+    categories = Category.objects.all().annotate(product_count=Count("products"))
 
     context = {
         "categories": categories,
@@ -44,3 +44,25 @@ def category_product_list_view(request, cid):
         "category": category,
     }
     return render(request, "core/category-product-list.html", context)
+
+
+def vendor_list_view(request):
+    vendors = Vendor.objects.all()
+
+    context = {
+        "vendors": vendors,
+    }
+    return render(request, "core/vendor-list.html", context)
+
+
+def vendor_detail_view(request, vid):
+    vendor = Vendor.objects.get(vid=vid)
+    products = Product.objects.filter(
+        vendor=vendor, product_status="published"
+    ).order_by("-date")
+
+    context = {
+        "vendor": vendor,
+        "products": products,
+    }
+    return render(request, "core/vendor-detail.html", context)

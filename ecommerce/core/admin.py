@@ -36,7 +36,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 class VendorAdmin(admin.ModelAdmin):
-    list_display = ["title", "vendor_image"]
+    list_display = ["title", "vendor_image", "address", "contact"]
 
 
 class CartOrderAdmin(admin.ModelAdmin):

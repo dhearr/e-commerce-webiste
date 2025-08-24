@@ -4,12 +4,17 @@ from . import views
 app_name = "core"
 
 urlpatterns = [
+    # Home Page
     path("", views.index, name="index"),
     path("product/", views.product_list_view, name="product-list"),
+    # Category
     path("category/", views.category_list_view, name="category-list"),
     path(
         "category/<cid>/",
         views.category_product_list_view,
         name="category-product-list",
     ),
+    # Vendor
+    path("vendor/", views.vendor_list_view, name="vendor-list"),
+    path("vendor/<vid>", views.vendor_detail_view, name="vendor-detail"),
 ]

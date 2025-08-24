@@ -58,6 +58,7 @@ class Vendor(models.Model):
     )
     title = models.CharField(max_length=155, default="Vendor-1")
     image = models.ImageField(upload_to=user_directory_path, default="vendor.jpg")
+    cover_image = models.ImageField(upload_to=user_directory_path, default="vendor.jpg")
     description = models.TextField(null=True, blank=True, default="Description Vendor")
 
     address = models.CharField(max_length=155, default="123 Main Street.")
@@ -67,6 +68,7 @@ class Vendor(models.Model):
     authentic_rating = models.CharField(max_length=155, default=100)
     days_return = models.CharField(max_length=155, default=100)
     warranty_period = models.CharField(max_length=155, default=100)
+    date = models.DateTimeField(auto_now_add=True)
 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
@@ -87,9 +89,11 @@ class Product(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     category = models.ForeignKey(
-        Category, on_delete=models.SET_NULL, null=True, related_name="category"
+        Category, on_delete=models.SET_NULL, null=True, related_name="products"
     )
-    vendor = models.ForeignKey(Vendor, on_delete=models.SET_NULL, null=True)
+    vendor = models.ForeignKey(
+        Vendor, on_delete=models.SET_NULL, null=True, related_name="products"
+    )
 
     title = models.CharField(max_length=155, default="Product-1")
     image = models.ImageField(upload_to=user_directory_path, default="product.jpg")
