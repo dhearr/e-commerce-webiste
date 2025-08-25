@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # taggit
     "taggit",
+    # ckeditor
+    "ckeditor",
     # DRF
     "rest_framework",
     # installed apps
@@ -163,3 +165,13 @@ REST_FRAMEWORK = {
 # custom user
 
 AUTH_USER_MODEL = "userauths.User"
+
+CKEDITOR_UPLOAD_PATH = "uploads/"
+CKEDITOR_CONFIGS = {
+    "default": {
+        "skin": "moono",
+        "codesnipets_theme": "monokai_sublime",
+        "toolbar": "all",
+        "extraplugins": ",".join(["codesnipet", "widget", "dialog"]),
+    }
+}
