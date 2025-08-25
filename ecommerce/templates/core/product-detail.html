@@ -6,13 +6,12 @@
   <div class="page-header breadcrumb-wrap">
     <div class="container">
       <div class="breadcrumb">
-        <a href="{% url 'core:index' %}" rel="nofollow"
-          ><i class="fi-rs-home mr-5"></i>Home</a
-        >
+        <a href="{% url 'core:index' %}" rel="nofollow">
+          <i class="fi-rs-home mr-5"></i>
+          Home
+        </a>
         <span></span>
-        <a href="{% url 'core:category-product-list' product.category.cid %}"
-          >{{ product.category.title }}</a
-        >
+        <a href="{% url 'core:product-list' %}">Shop</a>
         <span></span> {{ product.title }}
       </div>
     </div>
@@ -215,7 +214,7 @@
                         id="Reviews-tab"
                         data-bs-toggle="tab"
                         href="#Reviews"
-                        >Reviews (3)</a
+                        >Reviews ({{ reviews.count }})</a
                       >
                     </li>
                   </ul>
@@ -295,6 +294,7 @@
                           <div class="col-lg-8">
                             <h4 class="mb-30">Customer questions & answers</h4>
                             <div class="comment-list">
+                              {% for rev in reviews %}
                               <div
                                 class="single-comment justify-content-between d-flex mb-30"
                               >
@@ -304,19 +304,19 @@
                                   <div class="thumb text-center">
                                     <img
                                       src="{% static 'assets/imgs/blog/author-2.png' %}"
-                                      alt=""
+                                      alt="{{ rev.user.username|title }}"
                                     />
-                                    <a href="#" class="font-heading text-brand"
-                                      >Sienna</a
-                                    >
+                                    <a href="#" class="font-heading text-brand">
+                                      {{ rev.user.username|title }}
+                                    </a>
                                   </div>
                                   <div class="desc">
                                     <div
                                       class="d-flex justify-content-between mb-10"
                                     >
                                       <div class="d-flex align-items-center">
-                                        <span class="font-xs text-muted"
-                                          >December 4, 2022 at 3:12 pm
+                                        <span class="font-xs text-muted">
+                                          {{ rev.date|date:'d M, Y' }}
                                         </span>
                                       </div>
                                       <div class="product-rate d-inline-block">
@@ -326,107 +326,11 @@
                                         ></div>
                                       </div>
                                     </div>
-                                    <p class="mb-10">
-                                      Lorem ipsum dolor sit amet, consectetur
-                                      adipisicing elit. Delectus, suscipit
-                                      exercitationem accusantium obcaecati quos
-                                      voluptate nesciunt facilis itaque modi
-                                      commodi dignissimos sequi repudiandae
-                                      minus ab deleniti totam officia id
-                                      incidunt?
-                                      <a href="#" class="reply">Reply</a>
-                                    </p>
+                                    <p class="mb-10">{{ rev.review }}</p>
                                   </div>
                                 </div>
                               </div>
-                              <div
-                                class="single-comment justify-content-between d-flex mb-30 ml-30"
-                              >
-                                <div
-                                  class="user justify-content-between d-flex"
-                                >
-                                  <div class="thumb text-center">
-                                    <img
-                                      src="{% static 'assets/imgs/blog/author-3.png' %}"
-                                      alt=""
-                                    />
-                                    <a href="#" class="font-heading text-brand"
-                                      >Brenna</a
-                                    >
-                                  </div>
-                                  <div class="desc">
-                                    <div
-                                      class="d-flex justify-content-between mb-10"
-                                    >
-                                      <div class="d-flex align-items-center">
-                                        <span class="font-xs text-muted"
-                                          >December 4, 2022 at 3:12 pm
-                                        </span>
-                                      </div>
-                                      <div class="product-rate d-inline-block">
-                                        <div
-                                          class="product-rating"
-                                          style="width: 80%"
-                                        ></div>
-                                      </div>
-                                    </div>
-                                    <p class="mb-10">
-                                      Lorem ipsum dolor sit amet, consectetur
-                                      adipisicing elit. Delectus, suscipit
-                                      exercitationem accusantium obcaecati quos
-                                      voluptate nesciunt facilis itaque modi
-                                      commodi dignissimos sequi repudiandae
-                                      minus ab deleniti totam officia id
-                                      incidunt?
-                                      <a href="#" class="reply">Reply</a>
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                              <div
-                                class="single-comment justify-content-between d-flex"
-                              >
-                                <div
-                                  class="user justify-content-between d-flex"
-                                >
-                                  <div class="thumb text-center">
-                                    <img
-                                      src="{% static 'assets/imgs/blog/author-4.png' %}"
-                                      alt=""
-                                    />
-                                    <a href="#" class="font-heading text-brand"
-                                      >Gemma</a
-                                    >
-                                  </div>
-                                  <div class="desc">
-                                    <div
-                                      class="d-flex justify-content-between mb-10"
-                                    >
-                                      <div class="d-flex align-items-center">
-                                        <span class="font-xs text-muted"
-                                          >December 4, 2022 at 3:12 pm
-                                        </span>
-                                      </div>
-                                      <div class="product-rate d-inline-block">
-                                        <div
-                                          class="product-rating"
-                                          style="width: 80%"
-                                        ></div>
-                                      </div>
-                                    </div>
-                                    <p class="mb-10">
-                                      Lorem ipsum dolor sit amet, consectetur
-                                      adipisicing elit. Delectus, suscipit
-                                      exercitationem accusantium obcaecati quos
-                                      voluptate nesciunt facilis itaque modi
-                                      commodi dignissimos sequi repudiandae
-                                      minus ab deleniti totam officia id
-                                      incidunt?
-                                      <a href="#" class="reply">Reply</a>
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
+                              {% endfor %}
                             </div>
                           </div>
                           <div class="col-lg-4">
@@ -438,7 +342,9 @@
                                   style="width: 90%"
                                 ></div>
                               </div>
-                              <h6>4.8 out of 5</h6>
+                              <h6>
+                                {{ avg_rating.rating|floatformat:1 }} out of 5.0
+                              </h6>
                             </div>
                             <div class="progress">
                               <span>5 star</span>
