@@ -19,4 +19,6 @@ urlpatterns = [
     # Vendor
     path("vendor/", views.vendor_list_view, name="vendor-list"),
     path("vendor/<vid>", views.vendor_detail_view, name="vendor-detail"),
+    # Tag
+    path("products/tag/<slug:tag_slug>", views.tag_list_view, name="tag-list"),
 ]

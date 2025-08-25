@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from core.models import Product, Category, Vendor
 from django.db.models import Count
+from taggit.models import Tag
 
 
 def index(request):
@@ -11,6 +12,7 @@ def index(request):
     context = {
         "products": products,
     }
+
     return render(request, "core/index.html", context)
 
 
@@ -21,6 +23,7 @@ def product_list_view(request):
     context = {
         "products": products,
     }
+
     return render(request, "core/product-list.html", context)
 
 
@@ -34,6 +37,7 @@ def product_detail_view(request, pid):
         "product_images": product_images,
         "products": products,
     }
+
     return render(request, "core/product-detail.html", context)
 
 
@@ -45,6 +49,7 @@ def category_list_view(request):
     context = {
         "categories": categories,
     }
+
     return render(request, "core/category-list.html", context)
 
 
@@ -58,6 +63,7 @@ def category_product_list_view(request, cid):
         "products": products,
         "category": category,
     }
+
     return render(request, "core/category-product-list.html", context)
 
 
@@ -68,6 +74,7 @@ def vendor_list_view(request):
     context = {
         "vendors": vendors,
     }
+
     return render(request, "core/vendor-list.html", context)
 
 
@@ -82,4 +89,22 @@ def vendor_detail_view(request, vid):
         "vendor": vendor,
         "products": products,
     }
+
     return render(request, "core/vendor-detail.html", context)
+
+
+# Tag Views
+def tag_list_view(request, tag_slug=None):
+    products = Product.objects.filter(product_status="published").order_by("-date")
+
+    tag = None
+    if tag_slug:
+        tag = get_object_or_404(Tag, slug=tag_slug)
+        products = products.filter(tags__in=[tag])
+
+    context = {
+        "products": products,
+        "tag": tag,
+    }
+
+    return render(request, "core/tag.html", context)
