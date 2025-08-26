@@ -449,13 +449,17 @@
                     ><i class="fi-rs-eye"></i
                   ></a>
                 </div>
+                <!-- prettier-ignore -->
+                {% with percentage=product.get_percentage %}
+                      {% if percentage != 0 %}
                 <div
                   class="product-badges product-badges-position product-badges-mrg"
                 >
-                  <span class="hot"
-                    >-{{ product.get_percentage|floatformat:0 }}%</span
-                  >
+                  <span class="hot"> -{{ percentage|floatformat:0 }}% </span>
                 </div>
+                {% endif %}
+                <!-- prettier-ignore -->
+                {% endwith %}
               </div>
               <div class="product-content-wrap">
                 <div class="product-category">
@@ -466,14 +470,24 @@
                 </div>
                 <h2>
                   <a href="{% url 'core:product-detail' product.pid %}"
-                    >{{ product.title }}</a
-                  >
+                    >{{ product.title|truncatechars:50 }}
+                  </a>
                 </h2>
                 <div class="product-rate-cover">
                   <div class="product-rate d-inline-block">
-                    <div class="product-rating" style="width: 90%"></div>
+                    <div
+                      class="product-rating"
+                      style="width: {{ product.rating_star }}%"
+                    ></div>
                   </div>
-                  <span class="font-small ml-5 text-muted"> (4.0)</span>
+                  <span class="font-small ml-5 text-muted">
+                    <!-- prettier-ignore -->
+                    {% if product.avg_rating %}
+                            ({{ product.avg_rating|floatformat:1 }})
+                          {% else %}
+                            (0)
+                          {% endif %}
+                  </span>
                 </div>
                 <div>
                   <span class="font-small text-muted"
@@ -486,7 +500,13 @@
                 <div class="product-card-bottom">
                   <div class="product-price">
                     <span>${{ product.price }}</span>
-                    <span class="old-price">${{ product.old_price }}</span>
+                    {% with old_price=product.old_price %}
+                    <!-- prettier-ignore -->
+                    {% if old_price != 0 %}
+                    <span class="old-price"> ${{ product.old_price }} </span>
+                    {% endif %}
+                    <!-- prettier-ignore -->
+                    {% endwith %}
                   </div>
                   <div class="add-cart">
                     <a class="add" href="shop-cart.html"

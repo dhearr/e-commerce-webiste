@@ -4,6 +4,7 @@ from django.utils.html import mark_safe
 from userauths.models import User
 from taggit.managers import TaggableManager
 from ckeditor_uploader.fields import RichTextUploadingField
+from django.db.models import Avg
 
 
 STATUS_CHOICE = (
@@ -147,7 +148,16 @@ class Product(models.Model):
     def __str__(self):
         return self.title
 
+    def avg_rating(self):
+        return self.reviews.aggregate(avg=Avg("rating"))["avg"] or 0
+
+    def rating_star(self):
+        return (self.avg_rating() / 5) * 100
+
     def get_percentage(self):
+        if self.old_price == 0:
+            return 0
+
         new_price = ((self.old_price - self.price) / self.old_price) * 100
         return new_price
 

@@ -8,7 +8,7 @@ urlpatterns = [
     path("", views.index, name="index"),
     # Product
     path("products/", views.product_list_view, name="product-list"),
-    path("product/<pid>", views.product_detail_view, name="product-detail"),
+    path("product/<pid>/", views.product_detail_view, name="product-detail"),
     # Category
     path("category/", views.category_list_view, name="category-list"),
     path(
@@ -18,7 +18,9 @@ urlpatterns = [
     ),
     # Vendor
     path("vendor/", views.vendor_list_view, name="vendor-list"),
-    path("vendor/<vid>", views.vendor_detail_view, name="vendor-detail"),
+    path("vendor/<vid>/", views.vendor_detail_view, name="vendor-detail"),
     # Tag
-    path("products/tag/<slug:tag_slug>", views.tag_list_view, name="tag-list"),
+    path("products/tag/<slug:tag_slug>/", views.tag_list_view, name="tag-list"),
+    # add review
+    path("ajax-add-review/<int:pid>/", views.ajax_add_review, name="ajax-add-review"),
 ]

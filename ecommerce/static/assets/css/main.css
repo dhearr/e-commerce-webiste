@@ -1753,6 +1753,9 @@ label {
 
 .comments-area p {
   font-size: 16px !important;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .comments-area .thumb {

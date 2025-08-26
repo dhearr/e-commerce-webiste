@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404
 from core.models import Product, Category, Vendor, ProductReview
 from django.db.models import Count, Avg
 from taggit.models import Tag
+from core.forms import ProductReviewForm
+from django.http import JsonResponse
 
 
 def index(request):
@@ -35,10 +37,36 @@ def product_detail_view(request, pid):
     # get product reviews
     reviews = ProductReview.objects.filter(product=product).order_by("-date")
 
+    for r in reviews:
+        r.rating_width = r.rating * 20
+
     # get average rating review
     avg_rating = ProductReview.objects.filter(product=product).aggregate(
         rating=Avg("rating")
     )
+    avg_rating_data = avg_rating["rating"] or 0
+    rating_width = (avg_rating_data / 5) * 100
+
+    # rating count
+    # hitung total review
+    total_reviews = ProductReview.objects.filter(product=product).count()
+
+    # hitung jumlah tiap bintang (1–5)
+    rating_counts = (
+        ProductReview.objects.filter(product=product)
+        .values("rating")
+        .annotate(count=Count("rating"))
+    )
+
+    # bikin list dari 5 → 1
+    progres_data = []
+    for star in range(5, 0, -1):
+        count = next((r["count"] for r in rating_counts if r["rating"] == star), 0)
+        percent = (count / total_reviews) * 100 if total_reviews else 0
+        progres_data.append({"star": star, "percent": percent})
+
+    # product review form
+    product_review_form = ProductReviewForm()
 
     context = {
         "product": product,
@@ -46,6 +74,10 @@ def product_detail_view(request, pid):
         "products": products,
         "reviews": reviews,
         "avg_rating": avg_rating,
+        "product_review_form": product_review_form,
+        "avg_rating_data": avg_rating_data,
+        "rating_width": rating_width,
+        "progres_data": progres_data,
     }
 
     return render(request, "core/product-detail.html", context)
@@ -103,7 +135,7 @@ def vendor_detail_view(request, vid):
     return render(request, "core/vendor-detail.html", context)
 
 
-# Tag Views
+# Other Views
 def tag_list_view(request, tag_slug=None):
     products = Product.objects.filter(product_status="published").order_by("-date")
 
@@ -118,3 +150,38 @@ def tag_list_view(request, tag_slug=None):
     }
 
     return render(request, "core/tag.html", context)
+
+
+def ajax_add_review(request, pid):
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {"bool": False, "error": "Anda harus login untuk memberi review."}
+        )
+
+    product = Product.objects.get(pk=pid)
+    user = request.user
+
+    review = ProductReview.objects.create(
+        user=user,
+        product=product,
+        review=request.POST["review"],
+        rating=request.POST["rating"],
+    )
+
+    average_reviews = ProductReview.objects.filter(product=product).aggregate(
+        rating=Avg("rating")
+    )
+
+    context = {
+        "user": user.username,
+        "review": request.POST["review"],
+        "rating": request.POST["rating"],
+    }
+
+    return JsonResponse(
+        {
+            "bool": True,
+            "context": context,
+            "average_reviews": average_reviews,
+        }
+    )
