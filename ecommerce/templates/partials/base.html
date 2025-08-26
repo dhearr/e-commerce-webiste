@@ -321,21 +321,27 @@
             </div>
             <div class="header-right">
               <div class="search-style-2">
-                <form action="#">
-                  <select class="select-active">
-                    <option>All Categories</option>
-                    <option>Milks and Dairies</option>
-                    <option>Wines & Alcohol</option>
-                    <option>Clothing & Beauty</option>
-                    <option>Pet Foods & Toy</option>
-                    <option>Fast food</option>
-                    <option>Baking material</option>
-                    <option>Vegetables</option>
-                    <option>Fresh Seafood</option>
-                    <option>Noodles & Rice</option>
-                    <option>Ice cream</option>
-                  </select>
-                  <input type="text" placeholder="Search for items..." />
+                <form action="{% url 'core:search' %}" method="GET">
+                 <select name="category" class="select-active">
+                    <option value="" {% if not request.GET.category %}selected{% endif %}>
+                      All Categories
+                    </option>
+                    {% for cat in categories %}
+                      <option value="{{ cat.cid }}" 
+                          {% if request.GET.category == cat.cid|stringformat:"s" %}selected{% endif %}>
+                          {{ cat.title }}
+                      </option>
+                    {% endfor %}
+                </select>
+                  <input
+                    type="text"
+                    name="q"
+                    value="{% if query %}{{ query }}{% endif %}"
+                    placeholder="Search for items..."
+                  />
+                  <button class="btn" type="submit">
+                    <i class="fi-rs-search"></i>
+                  </button>
                 </form>
               </div>
               <div class="header-action-right">

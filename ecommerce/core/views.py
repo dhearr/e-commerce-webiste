@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from core.models import Product, Category, Vendor, ProductReview
-from django.db.models import Count, Avg
+from django.db.models import Count, Avg, Q
 from taggit.models import Tag
 from core.forms import ProductReviewForm
 from django.http import JsonResponse
@@ -185,3 +185,18 @@ def ajax_add_review(request, pid):
             "average_reviews": average_reviews,
         }
     )
+
+
+def search_view(request):
+    query = request.GET.get("q")
+    cat_cid = request.GET.get("category")
+    products = Product.objects.filter(
+        Q(title__icontains=query) | Q(description__icontains=query)
+    ).order_by("-date")
+
+    if cat_cid:
+        products = products.filter(category__cid=cat_cid)
+
+    context = {"products": products, "query": query}
+
+    return render(request, "core/search.html", context)

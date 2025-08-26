@@ -8,13 +8,14 @@
       <div class="archive-header">
         <div class="row align-items-center">
           <div class="col-xl-3">
-            <h1 class="mb-15">#{{ tag.name }}</h1>
+            <h1 class="mb-15">{{ query }}</h1>
             <div class="breadcrumb">
               <a href="{% url 'core:index' %}" rel="nofollow"
                 ><i class="fi-rs-home mr-5"></i>Home</a
               >
-              <span></span> <a href="{% url 'core:product-list' %}">Shop</a>
-              <span></span> {{ tag.name }}
+              <span></span>
+              <a href="{% url 'core:product-list' %}">Shop</a>
+              <span></span> {{ query }}
             </div>
           </div>
           {% comment %}
