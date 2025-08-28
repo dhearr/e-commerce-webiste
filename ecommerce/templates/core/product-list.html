@@ -35,8 +35,8 @@
                         class="form-check-input filter-checkbox"
                         data-filter="category"
                         type="checkbox"
-                        name="checkbox"
-                        id="exampleCheckbox2"
+                        name="category"
+                        id="categoryCheckbox{{ cat.id }}"
                         value="{{ cat.id }}"
                       />
                       &nbsp;&nbsp;&nbsp;
@@ -60,13 +60,17 @@
                       class="form-check-input filter-checkbox"
                       data-filter="vendor"
                       type="checkbox"
-                      name="checkbox"
-                      id="exampleCheckbox1"
+                      name="vendor"
+                      id="vendorCheckbox{{ ven.id }}"
                       value="{{ ven.id }}"
                     />
-                    <label class="form-check-label" for="exampleCheckbox1">
+                    <label
+                      class="form-check-label"
+                      for="vendorCheckbox{{ ven.id }}"
+                    >
                       <span>{{ ven.title }}</span>
                     </label>
+                    <br />
                     <br />
                     {% endfor %}
                   </div>
@@ -209,8 +213,10 @@
           <div class="totall-product">
             <p>
               We found
-              <strong class="text-brand">{{ products.count }}</strong> items for
-              you!
+              <strong class="text-brand" id="product-count">
+                {{ products.count }}
+              </strong>
+              items for you!
             </p>
           </div>
           <div class="sort-by-product-area">
@@ -254,117 +260,29 @@
             </div>
           </div>
         </div>
-        <div class="row product-grid">
-          {% for product in products %}
+        <div class="row product-grid" id="product-filter-list">
+          {% include "core/async/product-list.html" %}
+        </div>
+        <!-- Skeleton Loader -->
+        <div
+          id="skeleton-loader"
+          class="row product-grid"
+          style="display: none"
+        >
+          {% for i in "12345" %}
           <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
-            <div class="product-cart-wrap mb-30">
-              <div class="product-img-action-wrap">
-                <div class="product-img product-img-zoom">
-                  <a href="{% url 'core:product-detail' product.pid %}">
-                    <img
-                      class="default-img"
-                      src="{{ product.image.url }}"
-                      alt="{{ product.title }}"
-                    />
-                    <img
-                      class="hover-img"
-                      src="{{ product.image.url }}"
-                      alt="{{ product.title }}"
-                    />
-                  </a>
-                </div>
-                <div class="product-action-1">
-                  <a
-                    aria-label="Add To Wishlist"
-                    class="action-btn"
-                    href="shop-wishlist.html"
-                    ><i class="fi-rs-heart"></i
-                  ></a>
-                  <a
-                    aria-label="Compare"
-                    class="action-btn"
-                    href="shop-compare.html"
-                    ><i class="fi-rs-shuffle"></i
-                  ></a>
-                  <a
-                    aria-label="Quick view"
-                    class="action-btn"
-                    data-bs-toggle="modal"
-                    data-bs-target="#quickViewModal"
-                    ><i class="fi-rs-eye"></i
-                  ></a>
-                </div>
-                <!-- prettier-ignore -->
-                {% with percentage=product.get_percentage %}
-                      {% if percentage != 0 %}
-                <div
-                  class="product-badges product-badges-position product-badges-mrg"
-                >
-                  <span class="hot"> -{{ percentage|floatformat:0 }}% </span>
-                </div>
-                {% endif %}
-                <!-- prettier-ignore -->
-                {% endwith %}
-              </div>
-              <div class="product-content-wrap">
-                <div class="product-category">
-                  <a
-                    href="{% url 'core:category-product-list' product.category.cid %}"
-                    >{{ product.category.title }}</a
-                  >
-                </div>
-                <h2>
-                  <a href="{% url 'core:product-detail' product.pid %}"
-                    >{{ product.title|truncatechars:50 }}
-                  </a>
-                </h2>
-                <div class="product-rate-cover">
-                  <div class="product-rate d-inline-block">
-                    <div
-                      class="product-rating"
-                      style="width: {{ product.rating_star }}%"
-                    ></div>
-                  </div>
-                  <span class="font-small ml-5 text-muted">
-                    <!-- prettier-ignore -->
-                    {% if product.avg_rating %}
-                            ({{ product.avg_rating|floatformat:1 }})
-                          {% else %}
-                            (0)
-                          {% endif %}
-                  </span>
-                </div>
-                <div>
-                  <span class="font-small text-muted"
-                    >By
-                    <a href="{% url 'core:vendor-detail' product.vendor.vid %}"
-                      >{{ product.vendor.title }}</a
-                    ></span
-                  >
-                </div>
-                <div class="product-card-bottom">
-                  <div class="product-price">
-                    <span>${{ product.price }}</span>
-                    {% with old_price=product.old_price %}
-                    <!-- prettier-ignore -->
-                    {% if old_price != 0 %}
-                    <span class="old-price"> ${{ product.old_price }} </span>
-                    {% endif %}
-                    <!-- prettier-ignore -->
-                    {% endwith %}
-                  </div>
-                  <div class="add-cart">
-                    <a class="add" href="shop-cart.html"
-                      ><i class="fi-rs-shopping-cart mr-5"></i>Add
-                    </a>
-                  </div>
-                </div>
+            <div class="product-cart-wrap mb-30 skeleton-card">
+              <div class="skeleton-image"></div>
+              <div class="skeleton-content">
+                <div class="skeleton-line short"></div>
+                <div class="skeleton-line medium"></div>
+                <div class="skeleton-line long"></div>
               </div>
             </div>
           </div>
-          <!--end product card-->
           {% endfor %}
         </div>
+
         <!--product grid-->
         {% comment %}
         <div class="pagination-area mt-20 mb-20">

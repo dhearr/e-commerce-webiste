@@ -56,3 +56,38 @@ $("#commentForm").submit(function (e) {
     },
   });
 });
+
+$(document).ready(function () {
+  $(".filter-checkbox").on("click", function () {
+    let filter_objects = {};
+
+    $(".filter-checkbox").each(function () {
+      let filter_value = $(this).val();
+      let filter_key = $(this).data("filter");
+
+      filter_objects[filter_key] = Array.from(
+        document.querySelectorAll(`input[data-filter=${filter_key}]:checked`)
+      ).map(function (el) {
+        return el.value;
+      });
+    });
+    console.log(filter_objects);
+    $.ajax({
+      url: "/filter-products",
+      data: filter_objects,
+      dataType: "json",
+      beforeSend: function () {
+        $("#product-filter-list").hide();
+        $("#skeleton-loader").show();
+      },
+      success: function (response) {
+        $("#product-filter-list").html(response.data);
+        $("#product-count").html(response.count);
+      },
+      complete: function () {
+        $("#skeleton-loader").hide();
+        $("#product-filter-list").show();
+      },
+    });
+  });
+});
