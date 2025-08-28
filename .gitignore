@@ -1,6 +1,32 @@
-env/
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+*.log
+
+# Django
+db.sqlite3
 *.sqlite3
 media/
+staticfiles/  # kalau kamu collectstatic ke folder ini
+
+# Environment
 .env
+.env.local
+venv/
+env/
+.venv/
+
+# Docker
+*.pid
+*.log
+*.tar
+.dockerignore
+
+# VSCode / IDE
+.vscode/
+.idea/
