@@ -58,8 +58,16 @@ $("#commentForm").submit(function (e) {
 });
 
 $(document).ready(function () {
-  $(".filter-checkbox").on("click", function () {
+  // filter product
+  $(".filter-checkbox, #price-filter-btn").on("click", function () {
     let filter_objects = {};
+
+    let is_price_filter = $(this).attr("id") === "price-filter-btn";
+
+    if (is_price_filter) {
+      filter_objects.min_price = $("#current_price").attr("min");
+      filter_objects.max_price = $("#current_price").val();
+    }
 
     $(".filter-checkbox").each(function () {
       let filter_value = $(this).val();
@@ -71,7 +79,7 @@ $(document).ready(function () {
         return el.value;
       });
     });
-    console.log(filter_objects);
+
     $.ajax({
       url: "/filter-products",
       data: filter_objects,
@@ -89,5 +97,95 @@ $(document).ready(function () {
         $("#product-filter-list").show();
       },
     });
+  });
+
+  // price range slider
+  $("#current_price").on("blur", function () {
+    let min_price = $(this).attr("min");
+    let max_price = $(this).attr("max");
+    let current_price = $(this).val();
+
+    if (
+      current_price < parseInt(min_price) ||
+      current_price > parseInt(max_price)
+    ) {
+      min_price = Math.round(min_price * 100) / 100;
+      max_price = Math.round(max_price * 100) / 100;
+
+      $(this).val(min_price);
+      $("#range").val(min_price);
+      $(this).focus();
+
+      return false;
+    }
+  });
+});
+
+// Add to cart
+$(".add-to-cart-btn").on("click", function () {
+  let this_val = $(this);
+  let index = this_val.attr("data-index");
+
+  let product_qty = $(`.product-quantity-${index}`).val();
+  let product_id = $(`.product-id-${index}`).val();
+  let product_title = $(`.product-title-${index}`).val();
+  let product_price = $(`.current-product-price-${index}`).text();
+  let product_pid = $(`.product-pid-${index}`).val();
+  let product_image = $(`.product-image-${index}`).val();
+
+  // --- ANIMASI FLY TO CART ---
+  let cart = $(".mini-cart-icon"); // selector untuk ikon keranjang kamu
+  let imgToDrag = $(`.product-image-${index}`).val()
+    ? $(`<img src="${product_image}" />`)
+    : null;
+
+  if (imgToDrag) {
+    imgToDrag
+      .css({
+        position: "absolute",
+        top: this_val.offset().top,
+        left: this_val.offset().left,
+        width: "100px",
+        zIndex: "1000",
+        opacity: 0.8,
+      })
+      .appendTo("body")
+      .animate(
+        {
+          top: cart.offset().top,
+          left: cart.offset().left,
+          width: 30,
+          height: 30,
+          opacity: 0.2,
+        },
+        800,
+        "swing",
+        function () {
+          $(this).remove();
+        }
+      );
+  }
+
+  $.ajax({
+    url: "/add-to-cart",
+    data: {
+      qty: product_qty,
+      id: product_id,
+      title: product_title,
+      price: product_price,
+      pid: product_pid,
+      image: product_image,
+    },
+    dataType: "json",
+    beforeSend: function () {
+      this_val.html(
+        `<div class="spinner-border spinner-border-sm" role="status"></div>`
+      );
+    },
+    success: function (response) {
+      $(".cart-items-count").text(response.totalcartitems);
+      this_val.html(`<i class="fi-rs-shopping-cart-check"></i>`);
+      this_val.attr("disabled", "disabled");
+    },
   });
 });

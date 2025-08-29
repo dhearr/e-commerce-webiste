@@ -127,80 +127,55 @@
                 <div class="sidebar-widget price_range range">
                   <div class="price-filter mb-20">
                     <div class="price-filter-inner">
+                      {% comment %}
                       <div id="slider-range" class="mb-20"></div>
+                      {% endcomment %}
+                      <input
+                        class="slider-range"
+                        type="range"
+                        name="range"
+                        id="range"
+                        step="0.01"
+                        min="{{ min_max_price.price__min }}"
+                        max="{{ min_max_price.price__max }}"
+                        value="{{ min_max_price.price__min }}"
+                        oninput="current_price.value=this.value"
+                      />
                       <div class="d-flex justify-content-between">
                         <div class="caption">
                           From:
-                          <strong
-                            id="slider-range-value1"
-                            class="text-brand"
-                          ></strong>
+                          <strong id="slider-range-value1" class="text-brand">
+                            {{ min_max_price.price__min|floatformat:2 }}
+                          </strong>
                         </div>
                         <div class="caption">
                           To:
-                          <strong
-                            id="slider-range-value2"
-                            class="text-brand"
-                          ></strong>
+                          <strong id="slider-range-value2" class="text-brand">
+                            {{ min_max_price.price__max|floatformat:2 }}
+                          </strong>
                         </div>
                       </div>
+                      <input
+                        type="number"
+                        name=""
+                        id="current_price"
+                        step="0.01"
+                        min="{{ min_max_price.price__min }}"
+                        max="{{ min_max_price.price__max }}"
+                        value="{{ min_max_price.price__min|floatformat:2 }}"
+                        placeholder="Current Price"
+                        onkeyup="range.value=this.value"
+                      />
                     </div>
                   </div>
                   <div class="custome-checkbox">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      name="checkbox"
-                      id="exampleCheckbox211"
-                      value=""
-                    />
-                    <label class="form-check-label" for="exampleCheckbox211"
-                      ><span>$0.00 - $20.00 </span></label
+                    <button
+                      type="button"
+                      class="btn mt-20 w-100"
+                      id="price-filter-btn"
                     >
-                    <br />
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      name="checkbox"
-                      id="exampleCheckbox22"
-                      value=""
-                    />
-                    <label class="form-check-label" for="exampleCheckbox22"
-                      ><span>$20.00 - $40.00 </span></label
-                    >
-                    <br />
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      name="checkbox"
-                      id="exampleCheckbox23"
-                      value=""
-                    />
-                    <label class="form-check-label" for="exampleCheckbox23"
-                      ><span>$40.00 - $60.00 </span></label
-                    >
-                    <br />
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      name="checkbox"
-                      id="exampleCheckbox24"
-                      value=""
-                    />
-                    <label class="form-check-label" for="exampleCheckbox24"
-                      ><span>$60.00 - $80.00 </span></label
-                    >
-                    <br />
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      name="checkbox"
-                      id="exampleCheckbox25"
-                      value=""
-                    />
-                    <label class="form-check-label" for="exampleCheckbox25"
-                      ><span>Over $100.00</span></label
-                    >
+                      Filter
+                    </button>
                   </div>
                 </div>
               </div>
@@ -261,7 +236,158 @@
           </div>
         </div>
         <div class="row product-grid" id="product-filter-list">
-          {% include "core/async/product-list.html" %}
+          {% for product in products %}
+          <div class="col-lg-1-5 col-md-4 col-12 col-sm-6">
+            <div class="product-cart-wrap mb-30">
+              <div class="product-img-action-wrap">
+                <div class="product-img product-img-zoom">
+                  <a href="{% url 'core:product-detail' product.pid %}">
+                    <img
+                      class="default-img"
+                      src="{{ product.image.url }}"
+                      alt="{{ product.title }}"
+                    />
+                    <img
+                      class="hover-img"
+                      src="{{ product.image.url }}"
+                      alt="{{ product.title }}"
+                    />
+                  </a>
+                </div>
+                <div class="product-action-1">
+                  <a
+                    aria-label="Add To Wishlist"
+                    class="action-btn"
+                    href="shop-wishlist.html"
+                    ><i class="fi-rs-heart"></i
+                  ></a>
+                  <a
+                    aria-label="Compare"
+                    class="action-btn"
+                    href="shop-compare.html"
+                    ><i class="fi-rs-shuffle"></i
+                  ></a>
+                  <a
+                    aria-label="Quick view"
+                    class="action-btn"
+                    data-bs-toggle="modal"
+                    data-bs-target="#quickViewModal"
+                    ><i class="fi-rs-eye"></i
+                  ></a>
+                </div>
+                <!-- prettier-ignore -->
+                {% with percentage=product.get_percentage %}
+                {% if percentage != 0 %}
+                <div
+                  class="product-badges product-badges-position product-badges-mrg"
+                >
+                  <span class="hot"> -{{ percentage|floatformat:0 }}% </span>
+                </div>
+                {% endif %}
+                <!-- prettier-ignore -->
+                {% endwith %}
+              </div>
+              <div class="product-content-wrap">
+                <div class="product-category">
+                  <a
+                    href="{% url 'core:category-product-list' product.category.cid %}"
+                    >{{ product.category.title }}</a
+                  >
+                </div>
+                <h2>
+                  <a href="{% url 'core:product-detail' product.pid %}"
+                    >{{ product.title|truncatechars:50 }}
+                  </a>
+                </h2>
+                <div class="product-rate-cover">
+                  <div class="product-rate d-inline-block">
+                    <div
+                      class="product-rating"
+                      style="width: {{ product.rating_star }}%"
+                    ></div>
+                  </div>
+                  <span class="font-small ml-5 text-muted">
+                    <!-- prettier-ignore -->
+                    {% if product.avg_rating %}
+                    ({{ product.avg_rating|floatformat:1 }})
+                    {% else %}
+                    (0)
+                    {% endif %}
+                  </span>
+                </div>
+                <div>
+                  <span class="font-small text-muted"
+                    >By
+                    <a href="{% url 'core:vendor-detail' product.vendor.vid %}"
+                      >{{ product.vendor.title }}</a
+                    ></span
+                  >
+                </div>
+                <div class="product-card-bottom">
+                  <div class="product-price">
+                    <span>$</span>
+                    <span class="current-product-price-{{ product.id }}">
+                      {{ product.price }}
+                    </span>
+                    {% with old_price=product.old_price %}
+                    <!-- prettier-ignore -->
+                    {% if old_price != 0 %}
+                    <span class="old-price"> ${{ product.old_price }} </span>
+                    {% endif %}
+                    <!-- prettier-ignore -->
+                    {% endwith %}
+                  </div>
+                  <div class="add-cart">
+                    <input
+                      type="hidden"
+                      value="1"
+                      name=""
+                      id="product-quantity"
+                      class="product-quantity-{{ product.id }}"
+                    />
+                    <input
+                      type="hidden"
+                      value="{{ product.pid }}"
+                      name=""
+                      id=""
+                      class="product-pid-{{ product.id }}"
+                    />
+                    <input
+                      type="hidden"
+                      value="{{ product.image.url }}"
+                      name=""
+                      id=""
+                      class="product-image-{{ product.id }}"
+                    />
+                    <input
+                      type="hidden"
+                      value="{{ product.id }}"
+                      name=""
+                      id=""
+                      class="product-id-{{ product.id }}"
+                    />
+                    <input
+                      type="hidden"
+                      value="{{ product.title }}"
+                      name=""
+                      id=""
+                      class="product-title-{{ product.id }}"
+                    />
+                    <button
+                      class="add add-to-cart-btn"
+                      id="add-to-cart-btn"
+                      data-index="{{ product.id }}"
+                    >
+                      <i class="fi-rs-shopping-cart mr-5"></i>
+                      Add
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!--end product card-->
+          {% endfor %}
         </div>
         <!-- Skeleton Loader -->
         <div

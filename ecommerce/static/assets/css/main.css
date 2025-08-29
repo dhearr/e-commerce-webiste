@@ -13120,3 +13120,59 @@ footer .hotline img {
     background-position: -200% 0;
   }
 }
+
+/* input range price */
+
+input[type="range"] {
+  -webkit-appearance: none;
+  margin-right: 15px;
+  height: 7px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 5px;
+  background-image: linear-gradient(#3bb77e, #3bb77e);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #3bb77e;
+  cursor: ew-resize;
+  box-shadow: 0 0 2px 0 #555;
+  transition: background 0.3s ease-in-out;
+}
+
+input[type="range"]::-moz-range-thumb {
+  /* Firefox */
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #3bb77e;
+  cursor: ew-resize;
+  box-shadow: 0 0 2px 0 #555;
+}
+
+input[type="range"]::-ms-thumb {
+  /* IE/Edge lama */
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #3bb77e;
+  cursor: ew-resize;
+  box-shadow: 0 0 2px 0 #555;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  -webkit-appearance: none;
+  box-shadow: none;
+  border: none;
+  background: transparent;
+}
+
+.add-to-cart-btn {
+  border: none;
+  color: #3BB77E;
+}

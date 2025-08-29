@@ -93,8 +93,12 @@
                     </div>
                     <div class="clearfix product-price-cover">
                       <div class="product-price primary-color float-left">
-                        <span class="current-price text-brand">
-                          ${{ product.price }}
+                        <span class="current-price text-brand">$</span>
+                        <span
+                          id="current-product-price"
+                          class="current-price text-brand current-product-price-{{ product.id }}"
+                        >
+                          {{ product.price }}
                         </span>
                         <span>
                           <!-- prettier-ignore -->
@@ -121,30 +125,50 @@
                     <div class="short-desc mb-30">
                       {{ product.description|truncatechars_html:155|safe }}
                     </div>
-                    {% comment %}
-                    <div class="attr-detail attr-size mb-30">
-                      <strong class="mr-10">Size / Weight: </strong>
-                      <ul class="list-filter size-filter font-small">
-                        <li><a href="#">50g</a></li>
-                        <li class="active"><a href="#">60g</a></li>
-                        <li><a href="#">80g</a></li>
-                        <li><a href="#">100g</a></li>
-                        <li><a href="#">150g</a></li>
-                      </ul>
-                    </div>
-                    {% endcomment %}
                     <div class="detail-extralink mb-50">
-                      <div class="detail-qty border radius">
-                        <a href="#" class="qty-down"
-                          ><i class="fi-rs-angle-small-down"></i
-                        ></a>
-                        <span class="qty-val">1</span>
-                        <a href="#" class="qty-up"
-                          ><i class="fi-rs-angle-small-up"></i
-                        ></a>
-                      </div>
+                      <input
+                        type="number"
+                        id="product-quantity"
+                        name=""
+                        class="w-25 mb-20 product-quantity-{{ product.id }}"
+                        value="1"
+                      />
+                      <br />
                       <div class="product-extra-link2">
-                        <button type="submit" class="button button-add-to-cart">
+                        <input
+                          type="hidden"
+                          value="{{ product.pid }}"
+                          name=""
+                          id=""
+                          class="product-pid-{{ product.id }}"
+                        />
+                        <input
+                          type="hidden"
+                          value="{{ product.image.url }}"
+                          name=""
+                          id=""
+                          class="product-image-{{ product.id }}"
+                        />
+                        <input
+                          type="hidden"
+                          value="{{ product.id }}"
+                          name=""
+                          id=""
+                          class="product-id-{{ product.id }}"
+                        />
+                        <input
+                          type="hidden"
+                          value="{{ product.title }}"
+                          name=""
+                          id=""
+                          class="product-title-{{ product.id }}"
+                        />
+                        <button
+                          type="submit"
+                          id="add-to-cart-btn"
+                          data-index="{{ product.id }}"
+                          class="button button-add-to-cart add-to-cart-btn"
+                        >
                           <i class="fi-rs-shopping-cart"></i>Add to cart
                         </button>
                         <a

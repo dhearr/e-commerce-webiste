@@ -25,7 +25,7 @@ env/
 *.pid
 *.log
 *.tar
-.dockerignore
+# .dockerignore
 
 # VSCode / IDE
 .vscode/

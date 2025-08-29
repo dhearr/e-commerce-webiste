@@ -249,7 +249,10 @@
                 {{ product.description|truncatechars_html:255|safe }}
               </p>
               <div class="product-price">
-                <span>${{ product.price }}</span>
+                <span>$</span>
+                <span class="current-product-price-{{ product.id }}">
+                  {{ product.price }}
+                </span>
                 {% with old_price=product.old_price %}
                 <!-- prettier-ignore -->
                 {% if old_price != 0 %}
@@ -259,9 +262,55 @@
                 {% endwith %}
               </div>
               <div class="mt-30 d-flex align-items-center">
+                <input
+                  type="hidden"
+                  value="1"
+                  name=""
+                  id="product-quantity"
+                  class="product-quantity-{{ product.id }}"
+                />
+                <input
+                  type="hidden"
+                  value="{{ product.pid }}"
+                  name=""
+                  id=""
+                  class="product-pid-{{ product.id }}"
+                />
+                <input
+                  type="hidden"
+                  value="{{ product.image.url }}"
+                  name=""
+                  id=""
+                  class="product-image-{{ product.id }}"
+                />
+                <input
+                  type="hidden"
+                  value="{{ product.id }}"
+                  name=""
+                  id=""
+                  class="product-id-{{ product.id }}"
+                />
+                <input
+                  type="hidden"
+                  value="{{ product.title }}"
+                  name=""
+                  id=""
+                  class="product-title-{{ product.id }}"
+                />
+                <button
+                  class="btn add-to-cart-btn"
+                  id="add-to-cart-btn"
+                  data-index="{{ product.id }}"
+                  style="color: white"
+                >
+                  <i class="fi-rs-shopping-cart mr-5"></i>
+                  Add to Cart
+                </button>
+                {% comment %}
                 <a aria-label="Buy now" class="btn" href="shop-cart.html"
                   ><i class="fi-rs-shopping-cart mr-5"></i>Add to Cart</a
                 >
+                {% endcomment %}
                 <a
                   href="#"
                   class="add-wishlish ml-30 text-body font-sm font-heading font-weight-bold"
