@@ -50,8 +50,8 @@ $("#commentForm").submit(function (e) {
         </div>
       `;
 
-        $(".comment-list").prepend(newReview); // tambahkan di atas
-        $("#commentForm")[0].reset(); // reset form setelah submit
+        $(".comment-list").prepend(newReview);
+        $("#commentForm")[0].reset();
       }
     },
   });
@@ -181,11 +181,65 @@ $(".add-to-cart-btn").on("click", function () {
       this_val.html(
         `<div class="spinner-border spinner-border-sm" role="status"></div>`
       );
+      this_val.attr("disabled", "disabled");
     },
     success: function (response) {
       $(".cart-items-count").text(response.totalcartitems);
       this_val.html(`<i class="fi-rs-shopping-cart-check"></i>`);
-      this_val.attr("disabled", "disabled");
+      setTimeout(function () {
+        this_val.html(`<i class="fi-rs-shopping-cart mr-5"></i> Add`);
+        this_val.removeAttr("disabled");
+      }, 5000);
+    },
+  });
+});
+
+// Delete from cart
+$(document).on("click", ".delete-product", function () {
+  let product_id = $(this).attr("data-product");
+  let this_val = $(this);
+
+  $.ajax({
+    url: "/delete-from-cart",
+    data: {
+      id: product_id,
+    },
+    dataType: "json",
+    beforeSend: function () {
+      this_val.html(
+        `<div class="spinner-border spinner-border-sm" role="status"></div>`
+      );
+    },
+    success: function (response) {
+      this_val.show();
+      $(".cart-items-count").text(response.totalcartitems);
+      $("#cart-list").html(response.data);
+    },
+  });
+});
+
+// update product
+$(document).on("click", ".update-product", function () {
+  let product_id = $(this).attr("data-product");
+  let product_qty = $(`.product-qty-${product_id}`).val();
+  let this_val = $(this);
+
+  $.ajax({
+    url: "/update-cart",
+    data: {
+      id: product_id,
+      qty: product_qty,
+    },
+    dataType: "json",
+    beforeSend: function () {
+      this_val.html(
+        `<div class="spinner-border spinner-border-sm" role="status"></div>`
+      );
+    },
+    success: function (response) {
+      this_val.show();
+      $(".cart-items-count").text(response.totalcartitems);
+      $("#cart-list").html(response.data);
     },
   });
 });

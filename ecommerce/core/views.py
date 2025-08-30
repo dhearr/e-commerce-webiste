@@ -231,21 +231,34 @@ def filter_product(request):
 def add_to_cart(request):
     cart_product = {}
 
+    product_id = str(request.GET["id"])
+
+    try:
+        new_qty = int(request.GET["qty"])
+        if new_qty < 1:
+            new_qty = 1
+    except (ValueError, TypeError):
+        new_qty = 1
+
     cart_product[str(request.GET["id"])] = {
         "title": request.GET["title"],
-        "qty": request.GET["qty"],
+        "qty": new_qty,
         "price": request.GET["price"],
         "pid": request.GET["pid"],
         "image": request.GET["image"],
     }
 
     if "cart_data_obj" in request.session:
-        if str(request.GET["id"]) in request.session["cart_data_obj"]:
+        if product_id in request.session["cart_data_obj"]:
             cart_data = request.session["cart_data_obj"]
-            cart_data[str(request.GET["id"])]["qty"] = int(
-                cart_product[str(request.GET["id"])]["qty"]
-            )
-            cart_data.update(cart_data)
+
+            current_qty = int(cart_data[product_id]["qty"])
+            cart_data[product_id]["qty"] = current_qty + new_qty
+
+            # cart_data[str(request.GET["id"])]["qty"] = int(
+            #     cart_product[str(request.GET["id"])]["qty"]
+            # )
+            # cart_data.update(cart_data)
             request.session["cart_data_obj"] = cart_data
         else:
             cart_data = request.session["cart_data_obj"]
@@ -289,3 +302,76 @@ def cart_view(request):
                 "cart_total_amount": cart_total_amount,
             },
         )
+
+
+def delete_item_from_cart(request):
+    product_id = str(request.GET["id"])
+
+    if "cart_data_obj" in request.session:
+        if product_id in request.session["cart_data_obj"]:
+            cart_data = request.session["cart_data_obj"]
+            del request.session["cart_data_obj"][product_id]
+            request.session["cart_data_obj"] = cart_data
+
+    cart_total_amount = 0
+    if "cart_data_obj" in request.session:
+        for product_id, item in request.session["cart_data_obj"].items():
+            subtotal = float(item["price"]) * int(item["qty"])
+            item["subtotal"] = subtotal
+            cart_total_amount += subtotal
+
+    context = render_to_string(
+        "core/async/cart-list.html",
+        {
+            "cart_data": request.session["cart_data_obj"],
+            "totalcartitems": len(request.session["cart_data_obj"]),
+            "cart_total_amount": cart_total_amount,
+        },
+    )
+
+    return JsonResponse(
+        {
+            "data": context,
+            "totalcartitems": len(request.session["cart_data_obj"]),
+        }
+    )
+
+
+def update_cart(request):
+    product_id = str(request.GET["id"])
+
+    try:
+        product_qty = int(request.GET["qty"])
+        if product_qty < 1:
+            product_qty = 1
+    except (ValueError, TypeError):
+        product_qty = 1
+
+    if "cart_data_obj" in request.session:
+        if product_id in request.session["cart_data_obj"]:
+            cart_data = request.session["cart_data_obj"]
+            cart_data[str(request.GET["id"])]["qty"] = product_qty
+            request.session["cart_data_obj"] = cart_data
+
+    cart_total_amount = 0
+    if "cart_data_obj" in request.session:
+        for product_id, item in request.session["cart_data_obj"].items():
+            subtotal = float(item["price"]) * int(item["qty"])
+            item["subtotal"] = subtotal
+            cart_total_amount += subtotal
+
+    context = render_to_string(
+        "core/async/cart-list.html",
+        {
+            "cart_data": request.session["cart_data_obj"],
+            "totalcartitems": len(request.session["cart_data_obj"]),
+            "cart_total_amount": cart_total_amount,
+        },
+    )
+
+    return JsonResponse(
+        {
+            "data": context,
+            "totalcartitems": len(request.session["cart_data_obj"]),
+        }
+    )

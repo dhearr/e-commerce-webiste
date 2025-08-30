@@ -129,6 +129,7 @@
                       <input
                         type="number"
                         id="product-quantity"
+                        min="1"
                         name=""
                         class="w-25 mb-20 product-quantity-{{ product.id }}"
                         value="1"
@@ -169,7 +170,7 @@
                           data-index="{{ product.id }}"
                           class="button button-add-to-cart add-to-cart-btn"
                         >
-                          <i class="fi-rs-shopping-cart"></i>Add to cart
+                          <i class="fi-rs-shopping-cart"></i>Add
                         </button>
                         <a
                           aria-label="Add To Wishlist"
