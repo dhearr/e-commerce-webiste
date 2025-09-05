@@ -1,10 +1,23 @@
-from django.shortcuts import render, get_object_or_404
-from core.models import Product, Category, Vendor, ProductReview
+from django.shortcuts import render, get_object_or_404, redirect
+from core.models import (
+    Product,
+    Category,
+    Vendor,
+    ProductReview,
+    CartOrder,
+    CartOrderItems,
+)
 from django.db.models import Count, Avg, Q
 from taggit.models import Tag
 from core.forms import ProductReviewForm
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 from django.template.loader import render_to_string
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from django.contrib.staticfiles import finders
+import base64, json, requests, hashlib, hmac
+from weasyprint import HTML, CSS
 
 
 def index(request):
@@ -280,7 +293,9 @@ def cart_view(request):
 
     if "cart_data_obj" in request.session:
         for product_id, item in request.session["cart_data_obj"].items():
-            subtotal = float(item["price"]) * int(item["qty"])
+            price_rep = item["price"].strip().replace(",", "")
+            subtotal = int(price_rep) * int(item["qty"])
+            item["price"] = price_rep
             item["subtotal"] = subtotal
             cart_total_amount += subtotal
         return render(
@@ -316,7 +331,9 @@ def delete_item_from_cart(request):
     cart_total_amount = 0
     if "cart_data_obj" in request.session:
         for product_id, item in request.session["cart_data_obj"].items():
-            subtotal = float(item["price"]) * int(item["qty"])
+            price_rep = item["price"].strip().replace(",", "")
+            subtotal = int(price_rep) * int(item["qty"])
+            item["price"] = price_rep
             item["subtotal"] = subtotal
             cart_total_amount += subtotal
 
@@ -356,7 +373,9 @@ def update_cart(request):
     cart_total_amount = 0
     if "cart_data_obj" in request.session:
         for product_id, item in request.session["cart_data_obj"].items():
-            subtotal = float(item["price"]) * int(item["qty"])
+            price_rep = item["price"].strip().replace(",", "")
+            subtotal = int(price_rep) * int(item["qty"])
+            item["price"] = price_rep
             item["subtotal"] = subtotal
             cart_total_amount += subtotal
 
@@ -377,11 +396,14 @@ def update_cart(request):
     )
 
 
+@login_required
 def checkout_view(request):
     cart_total_amount = 0
     if "cart_data_obj" in request.session:
         for product_id, item in request.session["cart_data_obj"].items():
-            subtotal = float(item["price"]) * int(item["qty"])
+            price_rep = item["price"].strip().replace(",", "")
+            subtotal = int(price_rep) * int(item["qty"])
+            item["price"] = price_rep
             item["subtotal"] = subtotal
             cart_total_amount += subtotal
 
@@ -394,3 +416,278 @@ def checkout_view(request):
                 "cart_total_amount": cart_total_amount,
             },
         )
+
+
+def _cart_totals_from_session(request):
+    """
+    Hitung total dari session cart kamu:
+    request.session["cart_data_obj"] = { product_id(str): {title, qty, price(str), pid, image} }
+    """
+    cart_total = 0
+    items = []
+    cart = request.session.get("cart_data_obj", {})
+    for pid, item in cart.items():
+        price_rep = item["price"].strip().replace(",", "")
+        price = int(price_rep)
+        qty = int(item["qty"])
+        subtotal = price * qty
+        cart_total += subtotal
+        items.append(
+            {
+                "pid": pid,
+                "title": item["title"],
+                "image": item["image"],
+                "qty": qty,
+                "price": price,
+                "subtotal": subtotal,
+            }
+        )
+
+    return cart_total, items
+
+
+def create_snap_transaction(request):
+    if request.method != "GET":
+        return HttpResponseBadRequest("Use GET")
+
+    if "cart_data_obj" not in request.session or not request.session["cart_data_obj"]:
+        return HttpResponseBadRequest("Cart is empty")
+
+    # 1) hitung total & siapkan items
+    cart_total, items = _cart_totals_from_session(request)
+
+    # 2) buat CartOrder (pending)
+    if not request.user.is_authenticated:
+        # kalau belum login, kamu bisa pakai user anon khusus atau handle sesuai kebutuhan
+        return HttpResponseBadRequest("User must be authenticated")
+
+    order = CartOrder.objects.create(
+        user=request.user,
+        price=cart_total,
+        paid_status=False,
+        product_status="processing",
+    )
+
+    # 3) simpan line items (opsional tapi best practice)
+    for it in items:
+        CartOrderItems.objects.create(
+            order=order,
+            item=it["title"],
+            image=it["image"],
+            qty=it["qty"],
+            price=it["price"],
+            total=it["subtotal"],
+        )
+
+    # 4) request Snap token
+    url = (
+        "https://app.sandbox.midtrans.com/snap/v1/transactions"
+        if not settings.MIDTRANS_IS_PRODUCTION
+        else "https://app.midtrans.com/snap/v1/transactions"
+    )
+
+    auth_string = f"{settings.MIDTRANS_SERVER_KEY}:"
+    auth_header = base64.b64encode(auth_string.encode()).decode()
+
+    # Midtrans butuh gross_amount integer (IDR tanpa desimal)
+    gross_amount = int(order.price)  # atau round(Decimal) → tapi Pastikan sesuai IDR
+
+    payload = {
+        "transaction_details": {
+            "order_id": order.order_id,
+            "gross_amount": gross_amount,
+        },
+        # (opsional) lampirkan item_details biar detail di dashboard Midtrans rapi
+        "item_details": [
+            {
+                "id": it["pid"],
+                "price": int(it["price"]),
+                "quantity": it["qty"],
+                "name": it["title"][:50],
+            }
+            for it in items
+        ],
+        # (opsional) customer_details
+        "customer_details": {
+            "first_name": getattr(request.user, "first_name", "")
+            or request.user.username,
+            "email": request.user.email or "noemail@example.com",
+        },
+        # (opsional) set urls redirect
+        # "callbacks": {
+        #     "finish": request.build_absolute_uri("/payments/finish/"),
+        # },
+        "notification_url": request.build_absolute_uri("/payments/notification/"),
+    }
+
+    response = requests.post(
+        url,
+        headers={
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": f"Basic {auth_header}",
+        },
+        data=json.dumps(payload),
+    )
+    data = response.json()
+
+    if response.status_code >= 400 or "token" not in data:
+        # roll back order kalau mau, atau tandai error
+        return JsonResponse(data, status=400)
+
+    # simpan snap_token agar bisa di-reuse (misal tombol bayar ulang)
+    order.snap_token = data["token"]
+    order.save(update_fields=["snap_token"])
+
+    # NOTE: jangan kosongin cart session di sini; kosongkan setelah settlement/callback
+    return JsonResponse(
+        {
+            "token": data["token"],
+            "order_id": order.order_id,
+            "redirect_url": data.get("redirect_url"),
+        }
+    )
+
+
+@csrf_exempt
+def midtrans_notification(request):
+    if request.method != "POST":
+        return HttpResponseBadRequest("Only POST")
+
+    payload = json.loads(request.body.decode("utf-8"))
+    order_id = payload.get("order_id")
+    status_code = payload.get("status_code")
+    gross_amount = payload.get("gross_amount")
+    signature_key = payload.get("signature_key")
+    transaction_status = payload.get("transaction_status")
+    payment_type = payload.get("payment_type")
+    fraud_status = payload.get("fraud_status")
+    transaction_id = payload.get("transaction_id")
+
+    # Ambil order
+    try:
+        order = CartOrder.objects.get(order_id=order_id)
+    except CartOrder.DoesNotExist:
+        return HttpResponseBadRequest("Order not found")
+
+    # Validasi jumlah pembayaran
+    if str(order.price) != str(int(float(gross_amount))):
+        return HttpResponseBadRequest("Invalid gross amount")
+
+    # Verifikasi signature
+    raw = f"{order_id}{status_code}{gross_amount}{settings.MIDTRANS_SERVER_KEY}"
+    valid_sig = hashlib.sha512(raw.encode("utf-8")).hexdigest()
+    if signature_key != valid_sig:
+        return HttpResponseBadRequest("Invalid signature")
+
+    # Update info pembayaran
+    order.payment_type = payment_type
+    order.transaction_status = transaction_status
+    order.fraud_status = fraud_status
+    order.midtrans_transaction_id = transaction_id
+
+    # Mapping status
+    if transaction_status in ["capture", "settlement"]:
+        order.paid_status = True
+        order.product_status = "shipped"
+    elif transaction_status in ["cancel", "expire", "deny"]:
+        order.paid_status = False
+        order.product_status = "cancelled"
+    elif transaction_status == "pending":
+        order.paid_status = False
+        order.product_status = "processing"
+
+    order.save()
+    return HttpResponse("OK")
+
+
+@login_required
+def cancel_temp_order(request):
+    if request.method == "POST":
+        order_id = request.POST.get("order_id")
+        CartOrder.objects.filter(order_id=order_id, paid_status=False).delete()
+        return JsonResponse({"status": "ok"})
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+@login_required
+def clear_cart(request):
+    if "cart_data_obj" in request.session:
+        del request.session["cart_data_obj"]
+    return JsonResponse({"status": "cleared"})
+
+
+@login_required
+def payment_finish(request):
+    order = CartOrder.objects.filter(user=request.user).order_by("-order_date").first()
+    if not order:
+        return HttpResponseBadRequest("Order not found")
+
+    items = CartOrderItems.objects.filter(order=order)
+    subtotal = sum(item.total for item in items)
+
+    # print("====== order ======:", order)
+    # print("====== subtotal ======:", list(items.values()))
+    # print("====== subtotal ======:", subtotal)
+
+    return render(
+        request,
+        "core/payment-finish.html",
+        {
+            "order_id": order.order_id,
+            "order_date": order.order_date,
+            "payment_method": order.payment_type,
+            "items": items,
+            "subtotal": subtotal,
+            "grand_total": subtotal,
+        },
+    )
+
+
+@login_required
+def payment_unfinish(request):
+    return render(request, "core/payment-unfinish.html")
+
+
+@login_required
+def payment_error(request):
+    return render(request, "core/payment-error.html")
+
+
+@login_required
+def invoice_pdf(request):
+    # Ambil order terbaru user
+    order = CartOrder.objects.filter(user=request.user).order_by("-order_date").first()
+    if not order:
+        return HttpResponseBadRequest("Order tidak ditemukan")
+
+    items = CartOrderItems.objects.filter(order=order)
+    subtotal = sum(item.total for item in items)
+    grand_total = subtotal  # Kalau ada pajak atau diskon, hitung di sini
+
+    context = {
+        "order_id": order.order_id,
+        "order_date": order.order_date,
+        "payment_method": order.payment_type,
+        "items": items,
+        "subtotal": subtotal,
+        "grand_total": grand_total,
+        "request": request,
+    }
+
+    html_string = render_to_string("core/payment-finish.html", context)
+
+    css = CSS(
+        string="""
+        @page { size: A2; margin: 0.1cm; }
+        body { font-size: 8px; } 
+        """
+    )
+
+    pdf = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(
+        stylesheets=[css]
+    )
+
+    response = HttpResponse(pdf, content_type="application/pdf")
+    response["Content-Disposition"] = 'inline; filename="invoice.pdf"'
+    return response

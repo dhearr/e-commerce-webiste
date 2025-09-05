@@ -23,10 +23,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config("SECRET_KEY")
 
+# Payment
+MIDTRANS_SERVER_KEY = config("MIDTRANS_SERVER_KEY")
+MIDTRANS_CLIENT_KEY = config("MIDTRANS_CLIENT_KEY")
+MIDTRANS_IS_PRODUCTION = config("MIDTRANS_IS_PRODUCTION", default=False, cast=bool)
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
+
+CSRF_TRUSTED_ORIGINS = ["https://17b07f2c1076.ngrok-free.app"]
+# ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -39,10 +47,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.humanize",
     # taggit
     "taggit",
     # ckeditor
     "ckeditor",
+    # paypal
+    # "paypal.standard.ipn",
     # DRF
     "rest_framework",
     # installed apps
@@ -70,6 +81,7 @@ TEMPLATES = [
         "OPTIONS": {
             "context_processors": [
                 "core.context_processor.default",
+                "core.context_processor.midtrans_keys",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
@@ -163,8 +175,10 @@ REST_FRAMEWORK = {
 
 
 # custom user
-
 AUTH_USER_MODEL = "userauths.User"
+
+#
+LOGIN_URL = "userauths:sign-in"
 
 CKEDITOR_UPLOAD_PATH = "uploads/"
 CKEDITOR_CONFIGS = {
@@ -175,3 +189,7 @@ CKEDITOR_CONFIGS = {
         "extraplugins": ",".join(["codesnipet", "widget", "dialog"]),
     }
 }
+
+# Paypal
+# PAYPAL_RECEIVER_EMAIL = "sb-m18o145812737@business.example.com"
+# PAYPAL_TEST = True

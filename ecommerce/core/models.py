@@ -9,8 +9,9 @@ from django.db.models import Avg
 
 STATUS_CHOICE = (
     ("processing", "Processing"),
-    ("shiped", "Shiped"),
+    ("shipped", "Shipped"),
     ("delivered", "Delivered"),
+    ("cancelled", "Cancelled"),
 )
 
 STATUS = (
@@ -108,12 +109,8 @@ class Product(models.Model):
         null=True, blank=True, default="Description Product"
     )
 
-    price = models.DecimalField(
-        max_digits=99999999999999, decimal_places=2, default="1.99"
-    )
-    old_price = models.DecimalField(
-        max_digits=99999999999999, decimal_places=2, default="2.99"
-    )
+    price = models.PositiveBigIntegerField()
+    old_price = models.PositiveBigIntegerField()
 
     # specifications = models.TextField(null=True, blank=True)
     specifications = RichTextUploadingField(null=True, blank=True)
@@ -180,33 +177,37 @@ class ProductImages(models.Model):
 
 
 class CartOrder(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    price = models.DecimalField(
-        max_digits=99999999999999, decimal_places=2, default="1.99"
+    order_id = ShortUUIDField(
+        unique=True, length=12, max_length=20, prefix="slrs", alphabet="1234567890"
     )
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    price = models.PositiveBigIntegerField()
     paid_status = models.BooleanField(default=False)
     order_date = models.DateTimeField(auto_now_add=True)
     product_status = models.CharField(
         choices=STATUS_CHOICE, max_length=35, default="processing"
     )
+    snap_token = models.CharField(max_length=255, null=True, blank=True)
+    midtrans_transaction_id = models.CharField(max_length=255, null=True, blank=True)
+    payment_type = models.CharField(max_length=50, null=True, blank=True)
+    transaction_status = models.CharField(max_length=50, null=True, blank=True)
+    fraud_status = models.CharField(max_length=50, null=True, blank=True)
 
     class Meta:
         verbose_name_plural = "Cart Order"
 
+    def __str__(self):
+        return self.order_id
+
 
 class CartOrderItems(models.Model):
     order = models.ForeignKey(CartOrder, on_delete=models.CASCADE)
-    invoice_no = models.CharField(max_length=200)
-    product_status = models.CharField(max_length=200)
+    # invoice_no = models.CharField(max_length=200)
     item = models.CharField(max_length=200)
     image = models.CharField(max_length=200)
     qty = models.IntegerField(default=0)
-    price = models.DecimalField(
-        max_digits=99999999999999, decimal_places=2, default="1.99"
-    )
-    total = models.DecimalField(
-        max_digits=99999999999999, decimal_places=2, default="1.99"
-    )
+    price = models.PositiveBigIntegerField()
+    total = models.PositiveBigIntegerField()
 
     class Meta:
         verbose_name_plural = "Cart Order Items"

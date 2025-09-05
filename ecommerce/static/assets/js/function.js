@@ -119,6 +119,49 @@ $(document).ready(function () {
       return false;
     }
   });
+
+  // payment
+  $(function () {
+    $("#pay-button").on("click", function () {
+      $.ajax({
+        url: "/payments/create-snap-transaction/",
+        type: "GET",
+        dataType: "json",
+        success: function (res) {
+          current_order_id = res.order_id;
+          snap.pay(res.token, {
+            onSuccess: function (result) {
+              $.ajax({
+                url: "/cart/clear/",
+                type: "POST",
+                data: { order_id: current_order_id },
+                onSuccess: function (result) {
+                  window.location.href = "/payments/finish/";
+                },
+              });
+            },
+            onPending: function (result) {
+              window.location.href = "/payments/unfinish/";
+            },
+            onError: function (result) {
+              window.location.href = "/payments/error/";
+            },
+            onClose: function () {
+              $.ajax({
+                url: "/payments/cancel-temp-order/",
+                type: "POST",
+                data: { order_id: current_order_id },
+              });
+            },
+          });
+        },
+        error: function (xhr) {
+          console.error(xhr.responseText || "Gagal membuat transaksi");
+          alert("Gagal membuat transaksi. Coba lagi.");
+        },
+      });
+    });
+  });
 });
 
 // Add to cart

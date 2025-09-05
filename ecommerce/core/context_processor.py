@@ -1,5 +1,6 @@
 from core.models import Product, Category, Address, Vendor
 from django.db.models import Min, Max
+from django.conf import settings
 
 
 def default(request):
@@ -17,3 +18,7 @@ def default(request):
         "vendors": vendors,
         "min_max_price": min_max_price,
     }
+
+
+def midtrans_keys(request):
+    return {"MIDTRANS_CLIENT_KEY": getattr(settings, "MIDTRANS_CLIENT_KEY", "")}

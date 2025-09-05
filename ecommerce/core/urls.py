@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 app_name = "core"
@@ -31,10 +31,42 @@ urlpatterns = [
     path("add-to-cart/", views.add_to_cart, name="add-to-cart"),
     # cart page
     path("cart/", views.cart_view, name="cart"),
+    path("cart/clear/", views.clear_cart, name="clear-cart"),
     # delete product from cart
     path("delete-from-cart/", views.delete_item_from_cart, name="delete-from-cart"),
     # update cart
     path("update-cart/", views.update_cart, name="update-cart"),
     # checkout
     path("checkout/", views.checkout_view, name="checkout"),
+    # midtrans
+    # path(
+    #     "create-transaction/",
+    #     views.transaction_midtrans_view,
+    #     name="transaction_midtrans",
+    # ),
+    # paypal
+    # path("paypal/", include("paypal.standard.ipn.urls")),
+    # payment completed
+    # path("payment-completed/", views.payment_completed_view, name="payment-completed"),
+    # # payment failed
+    # path("payment-failed/", views.payment_failed_view, name="payment-failed"),
+    # midtrans
+    path(
+        "payments/create-snap-transaction/",
+        views.create_snap_transaction,
+        name="create_snap_transaction",
+    ),
+    path(
+        "payments/notification/",
+        views.midtrans_notification,
+        name="midtrans_notification",
+    ),
+    path("payments/finish/", views.payment_finish, name="payment_finish"),
+    path("payments/unfinish/", views.payment_unfinish, name="payment_unfinish"),
+    path("payments/error/", views.payment_error, name="payment_error"),
+    path(
+        "payments/cancel-temp-order/", views.cancel_temp_order, name="cancel_temp_order"
+    ),
+    #
+    path("invoice/pdf/", views.invoice_pdf, name="invoice-pdf"),
 ]

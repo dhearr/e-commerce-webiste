@@ -91,14 +91,15 @@
                         </span>
                       </div>
                     </div>
+                    {% load humanize %}
                     <div class="clearfix product-price-cover">
                       <div class="product-price primary-color float-left">
-                        <span class="current-price text-brand">$</span>
+                        <span class="current-price text-brand">Rp</span>
                         <span
                           id="current-product-price"
                           class="current-price text-brand current-product-price-{{ product.id }}"
                         >
-                          {{ product.price }}
+                          {{ product.price|floatformat:0|intcomma }}
                         </span>
                         <span>
                           <!-- prettier-ignore -->
@@ -114,7 +115,7 @@
                           <!-- prettier-ignore -->
                           {% if old_price != 0 %}
                           <span class="old-price font-md ml-15">
-                            ${{ product.old_price }}
+                            Rp{{ old_price|floatformat:0|intcomma }}
                           </span>
                           {% endif %}
                           <!-- prettier-ignore -->
@@ -545,14 +546,17 @@
                           <div class="rating-result" title="90%">
                             <span> </span>
                           </div>
-                          {% endcomment %}
+                          {% endcomment %} {% load humanize %}
                           <div class="product-price">
-                            <span>${{ product.price }} </span>
+                            <span
+                              >Rp{{ product.price|floatformat:0|intcomma
+                              }}</span
+                            >
                             {% with old_price=product.old_price %}
                             <!-- prettier-ignore -->
                             {% if old_price != 0 %}
                             <span class="old-price">
-                              ${{ product.old_price }}
+                              Rp{{ old_price|floatformat:0|intcomma }}
                             </span>
                             {% endif %}
                             <!-- prettier-ignore -->

@@ -1528,9 +1528,13 @@
     <script src="{% static 'assets/js/plugins/jquery.vticker-min.js' %}"></script>
     <script src="{% static 'assets/js/plugins/jquery.theia.sticky.js' %}"></script>
     <script src="{% static 'assets/js/plugins/jquery.elevatezoom.js' %}"></script>
+    {% comment %} <!-- Invoice JS -->
+    <script src="{% static 'assets/js/invoice/jspdf.min.js' %}"></script>
+    <script src="{% static 'assets/js/invoice/invoice.js' %}"></script> {% endcomment %}
     <!-- Template  JS -->
     <script src="{% static 'assets/js/main.js' %}"></script>
     <script src="{% static 'assets/js/shop.js' %}"></script>
     <script src="{% static 'assets/js/function.js' %}"></script>
+    {% block extra_scripts %}{% endblock %}
   </body>
 </html>

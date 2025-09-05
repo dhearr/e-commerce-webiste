@@ -1,6 +1,7 @@
 {% extends "partials/base.html" %}
 <!-- prettier-ignore -->
 {% load static %}
+{% load humanize %}
 {% block content %}
 <main class="main">
   <div class="page-header breadcrumb-wrap">
@@ -788,7 +789,7 @@
             <h6 class="text-muted">
               Subtotal:
               <span class="text-brand">
-                ${{ cart_total_amount|floatformat:2 }}
+                Rp{{ cart_total_amount|floatformat|intcomma }}
               </span>
             </h6>
           </div>
@@ -820,7 +821,7 @@
                     </h6>
                     <div class="product-rate-cover">
                       <h6 class="text-muted">
-                        ${{ item.price|floatformat:2 }}
+                        Rp{{ item.price|floatformat|intcomma }}
                       </h6>
                     </div>
                   </td>
@@ -829,7 +830,7 @@
                   </td>
                   <td>
                     <h4 class="text-brand">
-                      ${{ item.subtotal|floatformat:2 }}
+                      Rp{{ item.subtotal|floatformat|intcomma }}
                     </h4>
                   </td>
                 </tr>
@@ -897,6 +898,7 @@
             </div>
           </div>
           <div class="payment-logo d-flex">
+            {% comment %}
             <img
               class="mr-15"
               src="{% static 'assets/imgs/theme/icons/payment-paypal.svg' %}"
@@ -916,13 +918,26 @@
               src="{% static 'assets/imgs/theme/icons/payment-zapper.svg' %}"
               alt=""
             />
+            {% endcomment %} {% comment %}
+            <div>{{ paypal_payment_button.render }}</div>
+            {% endcomment %}
           </div>
+          {% comment %}
           <a href="#" class="btn btn-fill-out btn-block mt-30"
             >Place an Order<i class="fi-rs-sign-out ml-15"></i
           ></a>
+          {% endcomment %}
+          <button id="pay-button">Bayar Sekarang</button>
         </div>
       </div>
     </div>
   </div>
 </main>
+{% block extra_scripts %}
+<script
+  src="https://app.sandbox.midtrans.com/snap/snap.js"
+  data-client-key="{{ MIDTRANS_CLIENT_KEY }}"
+></script>
+{% endblock %}
+<!-- prettier-ignore -->
 {% endblock content %}

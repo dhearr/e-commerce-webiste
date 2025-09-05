@@ -21,6 +21,7 @@
         <div class="row">
             <div class="col-lg-8">
                 <div class="table-responsive shopping-summery">
+                    {% load humanize %}
                     <table class="table table-wishlist">
                         <thead>
                             <tr class="main-heading">
@@ -44,15 +45,15 @@
                                     </h6>
                                 </td>
                                 <td class="price text-center" data-title="Price">
-                                    <h4 class="text-brand">${{ item.price|floatformat:2 }}</h4>
+                                    <h5 class="text-brand">Rp{{ item.price|floatformat|intcomma }}</h5>
                                 </td>
                                 <td class="text-center detail-info" data-title="Quantity">
                                 <div class="d-flex justify-content-center align-items-center" style="height: 100%;">
-                                    <input type="number" style="border: 1px solid #3BB77E;" min="1" placeholder="qty" name="" id="" value="{{ item.qty}}" class="form-control text-center product-qty-{{ product_id }}">
+                                    <input type="number" style="border: 1px solid #3BB77E;" min="1" placeholder="qty" name="" id="" value="{{ item.qty}}" class="form-control text-center product-qty-{{ product_id }} mr-15 ml-15">
                                 </div>
                                 </td>
                                 <td class="price text-center" data-title="Price">
-                                    <h4 class="text-brand">${{ item.subtotal|floatformat:2 }}</h4>
+                                    <h5 class="text-brand">Rp{{ item.subtotal|floatformat|intcomma }}</h5>
                                 </td>
                                 <td class="action text-center" data-title="Refresh"><button style="background: none; border: none;" class="text-body update-product" data-product="{{ product_id }}"><i class="fi-rs-refresh"></i></a></td>
                                 <td class="action text-center" data-title="Remove"><button style="background: none; border: none;" class="text-body delete-product" data-product="{{ product_id }}"><i class="fi-rs-trash"></i></a></td>
@@ -360,7 +361,7 @@
                                         <h6 class="text-muted">Subtotal</h6>
                                     </td>
                                     <td class="cart_total_amount">
-                                        <h4 class="text-brand text-end">${{ cart_total_amount|floatformat:2 }}</h4>
+                                        <h4 class="text-brand text-end">Rp{{ cart_total_amount|floatformat|intcomma }}</h4>
                                     </td>
                                 </tr>
                                 <tr>
@@ -383,14 +384,14 @@
                                         <h6 class="text-muted">Total</h6>
                                     </td>
                                     <td class="cart_total_amount">
-                                        <h4 class="text-brand text-end">${{ cart_total_amount|floatformat:2 }}</h4>
+                                        <h4 class="text-brand text-end">Rp{{ cart_total_amount|floatformat|intcomma }}</h4>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                     {% if totalcartitems %}
-                     <a href="{% url 'core:checkout' %}" class="btn mb-20 w-100">Proceed To CheckOut<i class="fi-rs-sign-out ml-15"></i></a>
+                    <a href="{% url 'core:checkout' %}" class="btn mb-20 w-100">Proceed To CheckOut<i class="fi-rs-sign-out ml-15"></i></a>
                     {% endif %}
                 </div>
             </div>

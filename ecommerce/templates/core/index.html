@@ -255,16 +255,17 @@
                         >
                       </div>
                       <div class="product-card-bottom">
+                        {% load humanize %}
                         <div class="product-price">
-                          <span>$</span>
+                          <span>Rp</span>
                           <span class="current-product-price-{{ product.id }}">
-                            {{ product.price }}
+                            {{ product.price|floatformat:0|intcomma }}
                           </span>
                           {% with old_price=product.old_price %}
                           <!-- prettier-ignore -->
                           {% if old_price != 0 %}
                           <span class="old-price">
-                            ${{ product.old_price }}
+                            Rp{{ old_price|floatformat:0|intcomma }}
                           </span>
                           {% endif %}
                           <!-- prettier-ignore -->

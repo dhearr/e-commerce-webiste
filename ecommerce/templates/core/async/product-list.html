@@ -36,7 +36,7 @@
       </div>
       <!-- prettier-ignore -->
       {% with percentage=product.get_percentage %}
-      {% if percentage != 0 %}
+                {% if percentage != 0 %}
       <div class="product-badges product-badges-position product-badges-mrg">
         <span class="hot"> -{{ percentage|floatformat:0 }}% </span>
       </div>
@@ -65,10 +65,10 @@
         <span class="font-small ml-5 text-muted">
           <!-- prettier-ignore -->
           {% if product.avg_rating %}
-          ({{ product.avg_rating|floatformat:1 }})
-          {% else %}
-          (0)
-          {% endif %}
+                    ({{ product.avg_rating|floatformat:1 }})
+                    {% else %}
+                    (0)
+                    {% endif %}
         </span>
       </div>
       <div>
@@ -80,23 +80,66 @@
         >
       </div>
       <div class="product-card-bottom">
+        {% load humanize %}
         <div class="product-price">
-          <span>$</span>
+          <span>Rp</span>
           <span class="current-product-price-{{ product.id }}">
-            {{ product.price }}
+            {{ product.price|floatformat:0|intcomma }}
           </span>
           {% with old_price=product.old_price %}
           <!-- prettier-ignore -->
           {% if old_price != 0 %}
-          <span class="old-price"> ${{ product.old_price }} </span>
+          <span class="old-price">
+            Rp{{ old_price|floatformat:0|intcomma }}
+          </span>
           {% endif %}
           <!-- prettier-ignore -->
           {% endwith %}
         </div>
         <div class="add-cart">
-          <a class="add" href="shop-cart.html"
-            ><i class="fi-rs-shopping-cart mr-5"></i>Add
-          </a>
+          <input
+            type="hidden"
+            value="1"
+            name=""
+            id="product-quantity"
+            class="product-quantity-{{ product.id }}"
+          />
+          <input
+            type="hidden"
+            value="{{ product.pid }}"
+            name=""
+            id=""
+            class="product-pid-{{ product.id }}"
+          />
+          <input
+            type="hidden"
+            value="{{ product.image.url }}"
+            name=""
+            id=""
+            class="product-image-{{ product.id }}"
+          />
+          <input
+            type="hidden"
+            value="{{ product.id }}"
+            name=""
+            id=""
+            class="product-id-{{ product.id }}"
+          />
+          <input
+            type="hidden"
+            value="{{ product.title }}"
+            name=""
+            id=""
+            class="product-title-{{ product.id }}"
+          />
+          <button
+            class="add add-to-cart-btn"
+            id="add-to-cart-btn"
+            data-index="{{ product.id }}"
+          >
+            <i class="fi-rs-shopping-cart mr-5"></i>
+            Add
+          </button>
         </div>
       </div>
     </div>
