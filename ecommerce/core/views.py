@@ -655,9 +655,10 @@ def payment_error(request):
 
 
 @login_required
-def invoice_pdf(request):
+def invoice_pdf(request, order_id):
     # Ambil order terbaru user
     order = CartOrder.objects.filter(user=request.user).order_by("-order_date").first()
+    # order = get_object_or_404(CartOrder, order_id=order_id, user=request.user)
     if not order:
         return HttpResponseBadRequest("Order tidak ditemukan")
 
@@ -691,3 +692,53 @@ def invoice_pdf(request):
     response = HttpResponse(pdf, content_type="application/pdf")
     response["Content-Disposition"] = 'inline; filename="invoice.pdf"'
     return response
+
+
+@login_required
+def dashboard_view(request):
+    orders = CartOrder.objects.filter(user=request.user).order_by("-order_date")
+
+    context = {
+        "orders": orders,
+    }
+    return render(request, "core/dashboard.html", context)
+
+
+@login_required
+def order_detail_modal(request, id):
+    order = get_object_or_404(CartOrder, id=id, user=request.user)
+    items = CartOrderItems.objects.filter(order=order)
+
+    # Hitung subtotal, ongkir, total
+    subtotal = sum(item.total for item in items)
+    shipping = getattr(order, "shipping", 0)
+    total = subtotal + shipping
+
+    steps = ["ordered", "processing", "shipped", "delivered"]
+
+    if order.product_status == "cancelled":
+        steps[0] = "cancelled"
+        progress_percent = 100
+    else:
+        progress_percent = 100
+
+    current_index = (
+        steps.index(order.product_status) if order.product_status in steps else 0
+    )
+
+    html = render_to_string(
+        "core/order-detail-modal-content.html",
+        {
+            "order": order,
+            "items": items,
+            "steps": steps,
+            "current_index": current_index,
+            "progress_percent": progress_percent,
+            "subtotal": subtotal,
+            "shipping": shipping,
+            "total": total,
+        },
+        request=request,
+    )
+
+    return JsonResponse({"html": html})

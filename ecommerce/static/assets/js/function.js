@@ -286,3 +286,20 @@ $(document).on("click", ".update-product", function () {
     },
   });
 });
+
+$(document).on("click", ".view-order", function (e) {
+  e.preventDefault();
+  const orderId = $(this).data("id");
+
+  $.ajax({
+    url: `/dashboard/order/${orderId}/`, // sesuaikan dengan URL view kamu
+    method: "GET",
+    success: function (response) {
+      $("#order-detail-content").html(response.html);
+      $("#orderDetailModal").modal("show");
+    },
+    error: function () {
+      alert("Gagal memuat detail order.");
+    },
+  });
+});

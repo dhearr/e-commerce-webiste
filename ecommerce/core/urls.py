@@ -67,6 +67,12 @@ urlpatterns = [
     path(
         "payments/cancel-temp-order/", views.cancel_temp_order, name="cancel_temp_order"
     ),
-    #
-    path("invoice/pdf/", views.invoice_pdf, name="invoice-pdf"),
+    path("payments/invoice/<int:order_id>", views.invoice_pdf, name="payments-invoice"),
+    # dashboard
+    path("dashboard/", views.dashboard_view, name="dashboard"),
+    path(
+        "dashboard/order/<int:id>/",
+        views.order_detail_modal,
+        name="order-detail-modal",
+    ),
 ]

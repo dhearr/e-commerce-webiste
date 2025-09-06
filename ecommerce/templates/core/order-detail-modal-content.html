@@ -1,0 +1,55 @@
+{% load humanize %}
+
+<h6>Order: <span class="text-brand">{{ order.order_id }}</span></h6>
+<div
+  class="order-tracker {% if order.product_status == 'cancelled' %}cancelled{% endif %}"
+>
+  <ul class="tracker-steps">
+    {% for step in steps %}
+    <li
+      class="step {% if forloop.counter0 <= current_index %}active{% endif %} {% if step == 'cancelled' %}cancelled{% endif %}"
+    >
+      <span class="icon">
+        {% if step == 'cancelled' %}
+        <i class="bi bi-cart-x-fill"></i>
+        {% elif step == 'ordered' %}
+        <i class="bi bi-cart-check-fill"></i>
+        {% elif step == 'processing' %}
+        <i class="bi bi-clock-fill"></i>
+        {% elif step == 'shipped' %}
+        <i class="bi bi-truck-front-fill"></i>
+        {% elif step == 'delivered' %}
+        <i class="bi bi-box2-heart-fill"></i>
+        {% endif %}
+      </span>
+      <p class="step-name {% if step == 'cancelled' %}text-danger{% endif %}">
+        {{ step|title }}
+      </p>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+{% for item in items %}
+<div class="order-items mb-4">
+  <div class="d-flex align-items-center mb-3">
+    <img src="{{ item.image }}" width="60" class="rounded" />
+    <div class="ms-3 flex-grow-1">
+      <h6>{{ item.item }}</h6>
+      <small>{{ item.qty }} × Rp{{ item.price|intcomma }}</small>
+    </div>
+    <div class="text-end fw-bold">Rp{{ item.total|intcomma }}</div>
+  </div>
+</div>
+{% endfor %}
+
+<div class="order-summary border-top pt-3">
+  <h6>
+    Subtotal: <span class="text-brand mb-4">Rp{{ subtotal|intcomma }}</span>
+  </h6>
+  <br />
+  {% comment %}
+  <p>Ongkir: Rp{{ shipping|intcomma }}</p>
+  {% endcomment %}
+  <h6>Total: <span class="text-brand">Rp{{ total|intcomma }}</span></h6>
+</div>

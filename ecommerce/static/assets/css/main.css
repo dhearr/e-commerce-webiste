@@ -27,6 +27,7 @@ TABLE CONTENT
  Custom amine
 ***/
 @import url(https://fonts.bunny.net/css?family=lato:400,700,900|quicksand:400,500,600,700);
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css");
 /*import vendors*/
 @import url(vendors/normalize.css);
 @import url(vendors/bootstrap.min.css);
@@ -13174,5 +13175,83 @@ input[type="range"]::-webkit-slider-runnable-track {
 
 .add-to-cart-btn {
   border: none;
-  color: #3BB77E;
+  color: #3bb77e;
+}
+
+.order-tracker {
+  margin: 20px 0;
+  position: relative;
+  margin-bottom: 50px;
+}
+
+.tracker-steps {
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  padding: 0;
+  margin: 0;
+  position: relative;
+}
+
+/* Garis dasar (abu-abu penuh) */
+.tracker-steps::before {
+  content: "";
+  position: absolute;
+  top: 18px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #ddd;
+  z-index: 0;
+}
+
+/* Garis aktif (progress) */
+.tracker-steps::after {
+  content: "";
+  position: absolute;
+  top: 18px;
+  left: 0;
+  height: 4px;
+  /* background: #3bb77e; */
+  z-index: 1;
+  width: 100%;
+  transition: width 0.4s ease;
+}
+
+.step {
+  position: relative;
+  text-align: center;
+  flex: 1;
+  z-index: 2;
+}
+
+.step-name {
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.step .icon {
+  display: inline-block;
+  background: #ddd;
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  line-height: 36px;
+  font-size: 18px;
+  margin-bottom: 5px;
+  transition: background 0.3s ease;
+}
+
+.step.active .icon {
+  background: #3bb77e;
+}
+
+.step.cancelled .icon {
+  background: #dc3545;
+}
+
+.order-tracker.cancelled .tracker-steps::after {
+  /* background: #dc3545 !important; */
 }
